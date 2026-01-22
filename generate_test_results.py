@@ -137,7 +137,19 @@ def execute_pipeline():
             run_details = fabric_client.get_run_details(prompt)
             agent_answer = run_details.get("answer", "")
             sql_analysis = run_details.get("sql_analysis", {})
+            
+            # Debug output
+            print(f"🐛 Agent Answer: {agent_answer}")
+            print(f"🐛 SQL Analysis: {json.dumps(sql_analysis, indent=2)}")
+
             actual_sql = json.dumps(sql_analysis.get("sql_queries", []), indent=2)
+
+            # Debug: Save full run details for the first case to analyze the technical error
+            if i == 0:
+                debug_file = "debug_run_details.json"
+                with open(debug_file, "w", encoding="utf-8") as f:
+                    json.dump(run_details, f, indent=2, default=str)
+                print(f"🐛 Saved full run details to {debug_file}")
             
             # Step 3: Evaluate
             print("🧐 Step 3: Evaluating Similarity...")
