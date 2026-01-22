@@ -1,0 +1,72 @@
+{
+  "run_timestamp": "2026-01-22T07:39:12.479164",
+  "agent_name": "Sales POA Agent v2",
+  "warehouse_name": "DATAAGENT_WH",
+  "config": {
+    "agent_instructions_length": 9651,
+    "datasource_instructions_length": 3504,
+    "few_shots_count": 13,
+    "selected_tables_count": 2
+  },
+  "total_queries": 3,
+  "results": [
+    {
+      "id": "Q001",
+      "question": "For 2025-07 in AMERICAS, how did our billing for KEMET compare to the previous month?",
+      "complexity": "SIMPLE",
+      "timestamp": "2026-01-22T07:39:37.634366",
+      "status": "completed",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For 2025-07 in AMERICAS, how did our billing for KEMET compare to the previous month?"
+        },
+        {
+          "role": "assistant",
+          "content": "In AMERICAS, for the KEMET brand, billing (shipment-only) in July 2025 was USD 26,816,006.59, compared to USD 23,385,491.80 in June 2025. This represents an increase of 14.7% month-over-month.\n\nFilter applied:\nbrand = 'KEMET', ru = 'AMERICAS', order_type = 'SHIPMENT', year_month in ('2025-06', '2025-07')."
+        }
+      ],
+      "answer": "In AMERICAS, for the KEMET brand, billing (shipment-only) in July 2025 was USD 26,816,006.59, compared to USD 23,385,491.80 in June 2025. This represents an increase of 14.7% month-over-month.\n\nFilter applied:\nbrand = 'KEMET', ru = 'AMERICAS', order_type = 'SHIPMENT', year_month in ('2025-06', '2025-07')."
+    },
+    {
+      "id": "Q002",
+      "question": "What were the top brands in 2025-04 in EMEA by bookings value and quantity?",
+      "complexity": "SIMPLE",
+      "timestamp": "2026-01-22T07:39:51.633310",
+      "status": "completed",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What were the top brands in 2025-04 in EMEA by bookings value and quantity?"
+        },
+        {
+          "role": "assistant",
+          "content": "In April 2025, the top brands in EMEA by bookings were:\n\n1. KEMET: USD 28,679,621.11 (1,313,308,538 pcs)\n2. YAGEO: USD 15,594,115.93 (11,464,158,920 pcs)\n3. PULSE: USD 14,229,313.08 (11,135,608 pcs)\n4. Nexensos: USD 1,288,062.38 (1,079,554 pcs)\n5. CHILISIN: USD 1,056,215.07 (26,025,464 pcs)\n\nMetrics shown: total bookings sales (USD) and total bookings quantity (pcs).  \nFilter applied: year_month='2025-04', ru='EMEA', grouped and ranked by brand."
+        }
+      ],
+      "answer": "In April 2025, the top brands in EMEA by bookings were:\n\n1. KEMET: USD 28,679,621.11 (1,313,308,538 pcs)\n2. YAGEO: USD 15,594,115.93 (11,464,158,920 pcs)\n3. PULSE: USD 14,229,313.08 (11,135,608 pcs)\n4. Nexensos: USD 1,288,062.38 (1,079,554 pcs)\n5. CHILISIN: USD 1,056,215.07 (26,025,464 pcs)\n\nMetrics shown: total bookings sales (USD) and total bookings quantity (pcs).  \nFilter applied: year_month='2025-04', ru='EMEA', grouped and ranked by brand."
+    },
+    {
+      "id": "Q003",
+      "question": "In 2025-02, how did YAGEO perform in JAPAN & KOREA region for billing?",
+      "complexity": "SIMPLE",
+      "timestamp": "2026-01-22T07:40:05.020504",
+      "status": "completed",
+      "messages": [
+        {
+          "role": "user",
+          "content": "In 2025-02, how did YAGEO perform in JAPAN & KOREA region for billing?"
+        },
+        {
+          "role": "assistant",
+          "content": "In February 2025, YAGEO's billing sales in the JAPAN & KOREA region (order_type='SHIPMENT') were USD 3,865,531.81, with a billed quantity of 6,002,566,653 pcs.\n\nThis represents a year-over-year (YoY) increase of 5.1% in sales and 5.1% in quantity compared to February 2024, when sales were USD 3,716,491.87 and the billed quantity was 5,710,294,118 pcs.\n\nFilter applied:\nyear_month = 2025-02, brand = YAGEO, ru = JAPAN & KOREA, order_type = SHIPMENT."
+        }
+      ],
+      "answer": "In February 2025, YAGEO's billing sales in the JAPAN & KOREA region (order_type='SHIPMENT') were USD 3,865,531.81, with a billed quantity of 6,002,566,653 pcs.\n\nThis represents a year-over-year (YoY) increase of 5.1% in sales and 5.1% in quantity compared to February 2024, when sales were USD 3,716,491.87 and the billed quantity was 5,710,294,118 pcs.\n\nFilter applied:\nyear_month = 2025-02, brand = YAGEO, ru = JAPAN & KOREA, order_type = SHIPMENT."
+    }
+  ],
+  "summary": {
+    "completed": 3,
+    "failed": 0
+  }
+}
