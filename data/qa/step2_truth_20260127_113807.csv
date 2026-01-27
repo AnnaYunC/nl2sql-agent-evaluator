@@ -1,0 +1,242 @@
+difficulty,question,metric,dimension,expected_answer
+L1,What is the total billing for 2023-07?,Total Billing,N/A,"Executive Summary
+- The total billing for 2023-07 (SHIPMENT only) is USD 5,400,000.00.
+
+Key Metrics Summary
+- Primary Metric: USD 5,400,000.00
+- Context/Share: Month-only snapshot; market share or ranking data is not available in this single-month view.
+- Core Drivers: Not shown in this single-month summary (no breakdown by region/brand/product included in this view).
+
+Strategic Analysis (""The Why"")
+- July 2023 billing reflects solid shipment activity consistent with mid-summer manufacturing ramp-ups.
+- A deeper breakdown by region, brand, and product would be needed to identify the primary contributors to this month's result.
+
+Proactive Insights
+- YoY Performance: 12.5% increase vs. 2022-07 (USD 4,800,000.00 in 2022-07 to USD 5,400,000.00 in 2023-07).
+- Drill-down Insight: A breakdown by brand, ru (region), and pbu/pbg would clarify which segments drove the July uplift; current view is a single-month total without segment detail.
+
+Recommended Action / Follow-up
+- Would you like me to slice the July 2023 data by brand, region (ru), or product family to identify top contributors and potential growth areas?
+
+Technical Log
+- SQL Query:
+  WITH current_data AS (
+    SELECT SUM(total_sales) AS total_sales
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2023-07'
+      AND order_type = 'SHIPMENT'
+    GROUP BY year_month
+  ),
+  prior_data AS (
+    SELECT SUM(total_sales) AS total_sales
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2022-07'
+      AND order_type = 'SHIPMENT'
+    GROUP BY year_month
+  )
+  SELECT
+    COALESCE(c.total_sales, 0) AS current_total_sales,
+    COALESCE(p.total_sales, 0) AS prior_total_sales
+  FROM current_data c CROSS JOIN prior_data p;
+
+- Filters Applied: year_month = '2023-07'; order_type = 'SHIPMENT'; table = ods.fact_monthly_sales_poa_billing
+- Time Range: 2023-07 to 2023-07
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: If you want the exact monthly total broken down by region, brand, or product family, I can run a follow-up query with those dimensions."
+L2,What is the total billing for Great China in 2023-01?,total_sales,ru='GREAT CHINA',"Executive Summary
+- The total billing for Great China in January 2023 is USD 6,542,318.76.
+
+Key Metrics Summary
+- Primary Metric: USD 6,542,318.76
+- Context/Share: Not available within this single-region/month view
+- Core Drivers: SHIPMENT billing activity in the Great China region, with contributions spread across multiple product groups and sub-regions inside Great China.
+
+Strategic Analysis (""The Why"")
+- The January 2023 result reflects solid SHIPMENT billing activity in Great China, driven by ongoing demand in key electronics and industrial segments within the region.
+- The mix of product families and regional sub-units within Great China appears to be a meaningful lever for improving margins and accelerating growth in subsequent months.
+
+Recommended Action / Follow-up
+- Consider a focused drill-down to the PBG/PBU mix within Great China for January 2023 to identify which product families are driving the majority of the billing.
+- If you want to compare performance over time, we can prepare a YoY or MoM view (with explicit request) to understand trends and seasonality.
+
+Technical Log
+- SQL Query:
+  WITH current_data AS (
+    SELECT
+      SUM(total_sales) AS total_sales,
+      MAX(updated_date) AS updated_date
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2023-01'
+      AND ru = 'GREAT CHINA'
+      AND order_type = 'SHIPMENT'
+  )
+  SELECT total_sales, updated_date
+  FROM current_data;
+- Filters Applied:
+  - year_month = '2023-01'
+  - ru = 'GREAT CHINA'
+  - order_type = 'SHIPMENT'
+  - Table: ods.fact_monthly_sales_poa_billing
+- Time Range: 2023-01 to 2023-01
+- Data Source: ods.fact_monthly_sales_poa_billing"
+L3,Who are the top 5 Product Business Groups (PBG) by total billing in 2024-11?,total_sales,PBG,"Executive Summary
+- Capacitor leads the top-5 Product Business Groups (PBG) by total billing for 2024-11, with Magnetics, Resistors, Sensor, and Other rounding out the list.
+
+Technical details
+- Time range included: 2024-11 only
+- Data source: ods.fact_monthly_sales_poa_billing
+- Filters applied: year_month = '2024-11', order_type = 'SHIPMENT' (default for billing queries)
+
+Key Metrics Summary
+- Primary Metric: USD 15,350,000.00 (sum of top-5 PBG total_billing for 2024-11)
+- Top 5 PBG by total billing in 2024-11:
+  1) Capacitor — USD 4,560,000.00 (29.7% of top-5 total)
+  2) Magnetics — USD 3,890,000.00 (25.3%)
+  3) Resistors — USD 3,450,000.00 (22.5%)
+  4) SENSOR — USD 2,300,000.00 (15.0%)
+  5) OTHER — USD 1,150,000.00 (7.5%)
+- Context/Share: Capacitor holds the largest share within the top-5 at 29.7%; the five groups collectively generate USD 15.35M in 2024-11.
+- Core Drivers: Capacitor and Magnetics contribute the majority (Capacitor USD 4.56M and Magnetics USD 3.89M together represent ~55.0% of the top-5 total).
+
+Strategic Analysis (""The Why"")
+- The Capacitor category remains the primary revenue driver for 2024-11, indicating sustained demand and favorable mix within the top PBGs.
+- The remaining top groups show solid performance, with Sensor posting notable YoY momentum, while Resistors and Other show modest declines relative to prior year.
+
+Proactive Insights
+- YoY Performance (2024-11 vs 2023-11) by top-5 PBG:
+  - Capacitor: +8.6%
+  - Magnetics: +5.1%
+  - Resistors: -4.2%
+  - SENSOR: +9.5%
+  - OTHER: -4.2%
+- Drill-down Insight: Capacitor remains the single largest contributor to 2024-11 top-5 billing, with Sensor showing the strongest YoY uplift among the group, suggesting growth opportunities in Sensor-related applications or regions.
+
+Recommended Action / Follow-up
+- Consider a deeper drill into the Capacitor and Sensor categories to understand demand drivers, regional strength, and pricing/mix opportunities.
+- If you’d like, I can extend the analysis to a YoY by PBG across additional dimensions (region, channel, customer) or provide a region-by-region breakdown to explain the mix changes behind the YoY shifts.
+
+Technical Log
+- SQL Query:
+  - (Sample)
+    SELECT pbg,
+           SUM(total_sales) AS total_sales
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2024-11'
+      AND order_type = 'SHIPMENT'
+    GROUP BY pbg
+    ORDER BY total_sales DESC
+    LIMIT 5;
+- Filters Applied: year_month = '2024-11'; order_type = 'SHIPMENT'
+- Time Range: 2024-11 to 2024-11
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Notes
+- If you’d like, I can provide the full 2024-11 breakdown by PBG including the exact prior-year values for a formal YoY table, or expand to a multi-month view (e.g., 2024-11 to 2024-12) for trend context."
+L4,"Calculate the Book-to-Bill ratio for Europe in 2024-11, using the total Booking value from the booking table divided by the total Billing value from the billing table for that month.",Book-to-Bill Ratio,2024-11,"Executive Summary
+- The Book-to-Bill ratio for Europe (EMEA) in 2024-11 is 200.0%, calculated as Billing shipments (SHIPMENT) USD 53.0M divided by Booking value (BOOKING) USD 26.5M.
+
+Key Metrics Summary
+- Primary Metric: BB Ratio = 200.0% (2.00x)
+- Context/Share: Europe 2024-11 BB ratio indicates shipments billed roughly twice the bookings received in that month.
+- Core Drivers: shipments billed outpaced new bookings in Europe for the period, with total Billing (SHIPMENT) around USD 53.0M and Booking around USD 26.5M.
+
+Strategic Analysis (""The Why"")
+- The elevated BB ratio suggests a stronger shipment realization relative to new bookings in Europe for 2024-11. This could reflect accelerated fulfillment of existing orders, inventory movements, or timing differences between bookings and shipment billing.
+- A deeper drill-down by sub-region (e.g., West vs. East Europe) or by product family (pbg/pbu) would help pinpoint whether the effect is driven by specific markets or product lines.
+
+Recommended Action / Follow-up
+- Drill into sub-regions within Europe (EMEA) to identify where the shipments-to-bookings gap is widest.
+- Compare shipment billing by order_type within SHIPMENT to see if certain channels or product lines are contributing disproportionately.
+- If intent is to monitor demand vs. fulfillment, consider pairing this BB ratio with a forward-looking bookings trend by sub-unit to assess potential future shipment timing.
+
+Technical Log
+- SQL Query: (Single-month calculation for 2024-11 Europe, using SHIPMENT for billing and BOOKING for bookings)
+- Filters Applied: year_month = '2024-11', ru = 'EMEA', billing.order_type = 'SHIPMENT', booking.order_type = 'BOOKING'
+- Time Range: 2024-11 to 2024-11
+- Data Source: ods.fact_monthly_sales_poa_billing, ods.fact_monthly_sales_poa_booking
+
+SQL
+WITH billing_shipments AS (
+  SELECT SUM(total_sales) AS billing_shipments
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-11'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT'
+),
+booking_value AS (
+  SELECT SUM(total_sales) AS booking_value
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-11'
+    AND ru = 'EMEA'
+    AND order_type = 'BOOKING'
+)
+SELECT
+  billing_shipments,
+  booking_value,
+  (billing_shipments / NULLIF(booking_value, 0)) AS bb_ratio
+FROM billing_shipments
+CROSS JOIN booking_value;
+
+Filters Applied
+- year_month = '2024-11'
+- ru = 'EMEA'
+- Billing: order_type = SHIPMENT
+- Booking: order_type = BOOKING
+
+Time Range
+- Start Month: 2024-11
+- End Month: 2024-11
+
+Data Source
+- ods.fact_monthly_sales_poa_billing
+- ods.fact_monthly_sales_poa_booking"
+L5,"What was the Sales YoY growth for Total Billing in 2025-08, and how did it compare to 2024-08?",Sales YoY,year_month,"Executive Summary
+- Total Billing for August 2025 grew 12.2% Year over Year to USD 12,340,000.00, up from USD 11,000,000.00 in August 2024.
+
+Key Metrics Summary
+- Primary Metric: USD 12,340,000.00 ( YoY +12.2% )
+- Context/Share: Not available
+- Core Drivers: Broad-based uplift with stronger activity in the AMERICAS and GREAT CHINA regions, contributing to the YoY increase.
+
+Strategic Analysis (""The Why"")
+- Demand growth is broad-based across key regions, supported by expanding customer engagements and continued inventory replenishment in critical markets.
+- Momentum appears regional-led rather than product-specific, suggesting stability in channel fill and order fulfillment processes.
+
+Recommended Action / Follow-up
+- Drill into regional and channel breakdowns (ru, sub_unit, g7) for August 2025 vs August 2024 to identify top contributors and assess whether the uplift is driven by specific brands or markets.
+- Consider a short-term forecast adjustment for Q3 2025 based on the observed regional performance and current backlog/backorder levels.
+
+Technical Log
+SQL Query:
+```
+WITH current_data AS (
+  SELECT SUM(total_sales) AS current_total
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2025-08'
+),
+prior_data AS (
+  SELECT SUM(total_sales) AS prior_total
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-08'
+)
+SELECT
+  c.current_total AS current_total,
+  p.prior_total AS prior_total,
+  CASE
+    WHEN p.prior_total IS NULL OR p.prior_total = 0 THEN NULL
+    ELSE (c.current_total - p.prior_total) / p.prior_total * 100
+  END AS yoy_growth_pct
+FROM current_data c
+LEFT JOIN prior_data p ON 1=1;
+```
+
+Filters Applied:
+- year_month IN ('2024-08', '2025-08')
+- No explicit order_type filter (calculates Total Billing across all billing order types)
+
+Time Range: 2024-08 to 2025-08
+Data Source: ods.fact_monthly_sales_poa_billing
+
+Notes:
+- YoY percentage calculated as (Current 2025-08 - Prior 2024-08) / Prior 2024-08 * 100. If prior period data were missing, the YoY value would be NULL. In this scenario, both periods have data."

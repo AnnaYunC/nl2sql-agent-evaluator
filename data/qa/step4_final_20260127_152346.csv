@@ -1,0 +1,626 @@
+difficulty,question,metric,dimension,expected_answer,agent_answer,generated_sql,similarity_score,evaluation_grade,evaluation_reason
+L1,What is the total billing for 2024-06?,Total Billing,N/A,"Executive Summary
+- The total billing for 2024-06 is USD 12,345,678.90.
+
+Key Metrics Summary
+- Primary Metric: USD 12,345,678.90
+- Context/Share: Not available for this single-month snapshot
+- Core Drivers: Shipment-based billing activity in June 2024 (no regional breakdown in this summary)
+
+Strategic Analysis (""The Why"")
+- Revenue in June 2024 reflects steady shipment-enabled demand across key product lines.
+- The month-specific result may be influenced by seasonal factors and existing booked orders maturing into billed shipments.
+
+Recommended Action / Follow-up
+- Would you like a breakdown by brand, region (ru/sub_unit), or product hierarchy (pbg/pbu/pbu_1/pbu_2) for 2024-06?
+- I can also provide a breakdown by shipment vs backlog if you want to compare to other billing periods.
+
+Technical Log
+- SQL Query:
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-06'
+    AND order_type = 'SHIPMENT';
+- Filters Applied: year_month = '2024-06'; order_type = 'SHIPMENT'
+- Time Range: 2024-06 to 2024-06
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: If you’d like, I can append additional breakdowns (by brand, ru, sub_unit, pbg, etc.) in separate queries.","### Executive Summary
+- **June 2024 billing sales totaled USD 308.3M.**
+
+### Key Metrics Summary
+- **Primary Metric**: USD 308.3M (Monthly total for June 2024).
+- **Context/Share**: Total billing sales across all brands and regions for the period.
+- **Core Drivers**: Comprises all order_type='SHIPMENT' sales transactions during June 2024.
+
+### Strategic Analysis (""The Why"")
+- Robust June performance likely driven by stable fulfillment and steady market demand leading up to mid-year.
+- Consistent shipment execution across key product segments.
+
+### Recommended Action / Follow-up
+- Consider drilling down by brand, region, or customer for deeper insights into growth pockets or performance variances.
+
+---
+### Technical Log
+- **SQL Query**:
+```sql
+SELECT SUM(total_sales) AS total_sales FROM ods.fact_monthly_sales_poa_billing WHERE order_type = 'SHIPMENT' AND year_month = '2024-06'
+```
+- **Filters Applied**: order_type='SHIPMENT', year_month='2024-06'
+- **Time Range**: June 2024
+- **Data Source**: ods.fact_monthly_sales_poa_billing","[""SELECT year_month, SUM(total_sales) AS total_sales, MAX(updated_date) AS updated_date\nFROM ods.fact_monthly_sales_poa_billing\nWHERE order_type = 'SHIPMENT' AND year_month = '2024-06'\nGROUP BY year_month"", ""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""}]""]",92,PASS,"SQL logic and filters align with ground truth: using table ods.fact_monthly_sales_poa_billing, summing total_sales, with filters year_month = '2024-06' and order_type = 'SHIPMENT'; time range June 2024; data source matches. The only difference is the numeric total displayed in the executive summary (ground truth vs agent), but numeric values are synthetic and not used to determine logic correctness. The technical log query exactly mirrors the ground truth structure."
+L1,What is the total cost for 2024-07?,Total Cost,N/A,"Executive Summary
+- The total cost for 2024-07 (billing, SHIPMENT orders) is USD 28,450,000.00.
+
+Key Metrics Summary
+- Primary Metric: USD 28,450,000.00
+- Context/Share: All regions combined; no regional breakdown included in this query.
+- Core Drivers: SHIPMENT billing activity in July 2024 across all brands and units.
+
+Strategic Analysis (""The Why"")
+- July 2024 cost level aligns with typical mid-year shipment activity; variations by region/brand may be driving cost composition. 
+- A deeper dive by product group (PBG/PBU) and region (ru/sub_unit) could illuminate the main cost contributors and potential optimization opportunities.
+
+Recommended Action / Follow-up
+- Drill into the cost by product group and region for July 2024 to identify top cost drivers.
+- Compare July 2024 against June 2024 to assess month-over-month cost dynamics and seasonality.
+
+Technical Log
+- SQL Query:
+  SELECT SUM(total_cost) AS total_cost
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-07'
+    AND order_type = 'SHIPMENT';
+- Filters Applied:
+  - year_month = '2024-07'
+  - order_type = 'SHIPMENT'
+  - Table: ods.fact_monthly_sales_poa_billing
+- Time Range: 2024-07 to 2024-07
+- Data Source: ods.fact_monthly_sales_poa_billing","### Executive Summary
+- **[Headline Statement]**: The total cost for shipment orders in July 2024 is approximately USD 198.8M.
+
+### Key Metrics Summary
+- **Primary Metric**: USD 198.8M (for July 2024, shipment orders only).
+- **Context/Share**: Includes all brands, customers, and regions.
+- **Core Drivers**: This figure reflects all shipment-type billing activity for the specified period.
+
+### Strategic Analysis (""The Why"")
+- Strong cost levels are likely due to typical seasonal business cycles or underlying market demand in July.
+- The aggregated cost considers all operational regions and brands, capturing a global business snapshot.
+
+### Recommended Action / Follow-up
+- You might want to analyze the breakdown by brand, region, or customer segment to identify specific cost drivers or optimization opportunities.
+
+---
+### Technical Log
+- **SQL Query**: 
+  ```sql
+  SELECT SUM(total_cost) AS total_cost 
+    FROM ods.fact_monthly_sales_poa_billing 
+   WHERE order_type='SHIPMENT' AND year_month='2024-07'
+  ```
+- **Filters Applied**: order_type='SHIPMENT', year_month='2024-07'
+- **Time Range**: July 2024
+- **Data Source**: ods.fact_monthly_sales_poa_billing","[""SELECT \n  SUM(total_cost) AS total_cost,\n  MAX(updated_date) AS updated_date\nFROM ods.fact_monthly_sales_poa_billing\nWHERE order_type = 'SHIPMENT' AND year_month = '2024-07'"", ""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""}]""]",92,PASS,"Agent answer uses the same core metric and data source: SUM(total_cost) from ods.fact_monthly_sales_poa_billing with filters year_month = '2024-07' and order_type = 'SHIPMENT'. The dimension focuses on shipment orders for July 2024 with no regional breakdown, matching the ground truth's SQL logic and filters. Numeric value may differ due to synthetic data, which should not impact the assessment of logic and filters."
+L1,What is the gross profit for 2024-07?,Gross Profit,N/A,"Executive Summary
+- The gross profit for July 2024 is USD 2,700,000.00.
+
+Key Metrics Summary
+- Primary Metric: USD 2,700,000.00 (Gross Profit)
+- GM% (gross margin): 34.4% (calculated as GP / total_sales for the period)
+- Context/Share: Not applicable for a single-month snapshot; this view provides the month’s GP without a cross-month comparison.
+- Core Drivers: Profitability driven by shipment-based revenue in July 2024 with a moderate cost base leading to a healthy gross margin.
+
+Strategic Analysis (""The Why"")
+- July 2024 profitability reflects solid shipment activity and a favorable cost mix within the month.
+- A deeper dive by product group, brand, or region could reveal the primary contributors to GP and areas for margin optimization.
+
+Recommended Action / Follow-up
+- Request a breakdown of GP by product business group (PBG) and region (ru/sub_unit) for July 2024 to identify top-margin drivers and potential optimization opportunities.
+
+Technical Log
+- SQL Query:
+  SELECT
+    SUM(total_sales) AS total_sales,
+    SUM(total_cost) AS total_cost,
+    SUM(total_sales) - SUM(total_cost) AS gross_profit
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-07'
+    AND order_type = 'SHIPMENT';
+- Filters Applied: year_month = '2024-07'; order_type = 'SHIPMENT'
+- Time Range: 2024-07 to 2024-07
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: This calculation uses the standard GP definition: Gross Profit = SUM(total_sales) - SUM(total_cost). If you’d like, I can break out GM% by region or product line or extend the analysis to a YTD view.","### Executive Summary
+- **[Headline Statement]**: The gross profit for July 2024 is USD 138.8M.
+
+### Key Metrics Summary
+- **Primary Metric**: USD 138.8M (Gross Profit)
+- **Context/Share**: Based on shipment order type across all brands and regions for July 2024.
+- **Core Drivers**: Performance is primarily impacted by overall sales volume, cost management, and consistent margin across the brand portfolio.
+
+### Strategic Analysis (""The Why"")
+- Strong gross profit was driven by revenue from key sectors and effective cost controls.
+- Continued stability in shipment demand across diversified regions contributed to positive results.
+
+### Recommended Action / Follow-up
+- You might want to break down gross profit by region, brand, or key customers to identify additional growth or margin improvement opportunities.
+
+---
+### Technical Log
+- **SQL Query**:
+```sql
+SELECT SUM(total_sales) as revenue, SUM(total_cost) as cost, 
+       SUM(total_sales) - SUM(total_cost) as gross_profit
+FROM ods.fact_monthly_sales_poa_billing
+WHERE order_type = 'SHIPMENT' 
+  AND year_month = '2024-07'
+```
+- **Filters Applied**: order_type='SHIPMENT', year_month='2024-07'
+- **Time Range**: July 2024
+- **Data Source**: ods.fact_monthly_sales_poa_billing","[""SELECT \n  SUM(total_sales) AS revenue,\n  SUM(total_cost) AS cost,\n  SUM(total_sales) - SUM(total_cost) AS gross_profit,\n  MAX(updated_date) AS updated_date\nFROM ods.fact_monthly_sales_poa_billing\nWHERE order_type = 'SHIPMENT' AND year_month = '2024-07'"", ""SELECT \n  SUM(total_sales) AS revenue,\n  SUM(total_cost) AS cost,\n  SUM(total_sales) - SUM(total_cost) AS gross_profit,\n  MAX(updated_date) AS updated_date\nFROM ods.fact_monthly_sales_poa_billing\nWHERE year_month = '2024-07' AND order_type = 'SHIPMENT'"", ""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total backlog sales in 2025 Feb.\"",\""query\"":\""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""}]""]",92,PASS,"The answer uses the same SQL logic to compute gross_profit (SUM(total_sales) - SUM(total_cost)) and applies identical filters (year_month = '2024-07' and order_type = 'SHIPMENT'). Dimensions align to a single-month summary for July 2024. The only minor differences are output alias names (e.g., revenue vs total_sales) which do not affect the underlying logic. Numeric GP values differ as the ground truth uses synthetic data; this is allowed per the instruction since the focus is on logic, filters, and dimensions."
+L1,What is the GM% for 2024-08?,Gross Margin % (GM%),N/A,"Executive Summary
+- GM% for 2024-08: 27.9%
+
+Key Metrics Summary
+- Primary Metric: 27.9% (USD 4.05M Gross Profit)
+- Context/Share: Billing (SHIPMENT) for August 2024
+- Core Drivers: Margin supported by a favorable product mix and disciplined cost of goods sold in August 2024
+
+Strategic Analysis (""The Why"")
+- The August 2024 margin indicates solid profitability on shipped orders, suggesting stable pricing and cost control.
+- Margin stability across this month implies that any price or cost changes in later periods would need careful monitoring of the same product mix and supplier costs.
+
+Recommended Action / Follow-up
+- Drill into GM% by product group (pbg/pbu/pbu_1/pbu_2) and by region (ru/sub_unit) for 2024-08 to identify which segments are driving margin.
+- Compare GM% across adjacent months (2024-07 and 2024-09) to assess trend and detect any seasonality or cost shifts.
+
+Technical Log
+- SQL Query:
+```
+SELECT
+  year_month,
+  SUM(total_sales) AS total_sales,
+  SUM(total_cost) AS total_cost,
+  (SUM(total_sales) - SUM(total_cost)) AS gross_profit,
+  CASE
+    WHEN SUM(total_sales) = 0 THEN NULL
+    ELSE (SUM(total_sales) - SUM(total_cost)) / SUM(total_sales) * 100
+  END AS gm_percent
+FROM
+  ods.fact_monthly_sales_poa_billing
+WHERE
+  year_month = '2024-08'
+  AND order_type = 'SHIPMENT'
+GROUP BY
+  year_month;
+```
+- Filters Applied: year_month = '2024-08'; order_type = 'SHIPMENT'
+- Time Range: 2024-08
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note on data assumptions
+- Data for 2024-08 is assumed to exist within the strict 2022-01 to 2025-10 window. If any data is pending settlement, I can provide a “Ghost Record” template with the structure and placeholders.","### Executive Summary
+- **[Headline Statement]**: The Gross Margin Percentage (GM%) for billing sales (order type: SHIPMENT) in August 2024 is 40.1%.
+
+### Key Metrics Summary
+- **Primary Metric**: GM% = 40.1%
+- **Context/Share**: Calculated across all brands and regions for standard shipment billing.
+- **Core Drivers**: Reflects margin management on standard sales shipments for August 2024.
+
+### Strategic Analysis (""The Why"")
+- Margin stability may be driven by product mix or cost management efforts during August.
+- No significant anomalies or drivers specified without additional breakdown.
+
+### Recommended Action / Follow-up
+- You might want to analyze GM% by product line, region, or customer segment for deeper insight.
+
+---
+### Technical Log
+- **SQL Query**: 
+  ```sql
+  SELECT (SUM(total_sales) - SUM(total_cost)) / SUM(total_sales) * 100 AS gross_margin_percent
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE order_type='SHIPMENT' AND year_month='2024-08'
+  ```
+- **Filters Applied**: order_type='SHIPMENT', year_month='2024-08'
+- **Time Range**: August 2024
+- **Data Source**: ods.fact_monthly_sales_poa_billing","[""SELECT \n  (SUM(total_sales) - SUM(total_cost)) * 100.0 / NULLIF(SUM(total_sales), 0) AS gross_margin_percent,\n  MAX(updated_date) AS updated_date\nFROM ods.fact_monthly_sales_poa_billing\nWHERE order_type = 'SHIPMENT' AND year_month = '2024-08'"", ""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total backlog sales in 2025 Feb.\"",\""query\"":\""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""}]""]",85,PASS,"The answer aligns with the Ground Truth in SQL logic, dimensions, and filters. It uses GM% calculation from total_sales and total_cost, with filters on year_month = '2024-08' and order_type = 'SHIPMENT', and pulls from the same data source (ods.fact_monthly_sales_poa_billing). The Ground Truth presents variants (per-month GM% with grouping, or a single GM% value); both approaches are consistent with the required GM% calculation for 2024-08. Numeric value differences are acceptable per instructions, as the focus is on logic, not specific numbers."
+L1,What is the ASP for 2024-08?,Average Selling Price (ASP),N/A,"Executive Summary
+- The ASP for August 2024 (SHIPMENT orders only) is USD 45.25 per unit.
+
+Key Metrics Summary
+- Primary Metric: USD 45.25 per unit (MoM N/A)
+- Context/Share: Not available for this single-month slice
+- Core Drivers: ASP reflects the shipment-only mix for August 2024; indicates unit economics are driven by the product mix within shipments for that month
+
+Strategic Analysis (""The Why"")
+- The August 2024 ASP aligns with stable pricing and mix in shipment orders for that period.
+- No unusual price spikes or declines are observed in the single-month view, suggesting steadier demand and product mix.
+
+Recommended Action / Follow-up
+- Would you like ASP broken out by product group (pbg/pbu) or by region (ru/sub_unit) for August 2024 to understand drivers of the ASP level?
+- I can also provide ASP by brand or customer segment if needed.
+
+Technical Log
+- SQL Query:
+```sql
+SELECT
+  year_month,
+  SUM(total_sales) AS total_sales,
+  SUM(total_qty) AS total_qty,
+  SUM(total_cost) AS total_cost,
+  (SUM(total_sales) / NULLIF(SUM(total_qty), 0)) AS asp
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-08'
+  AND order_type = 'SHIPMENT'
+GROUP BY year_month;
+```
+- Filters Applied: year_month = '2024-08'; order_type = 'SHIPMENT'
+- Time Range: 2024-08 to 2024-08
+- Data Source: ods.fact_monthly_sales_poa_billing","### Executive Summary
+- **[Headline Statement]**: The average selling price (ASP) for shipment sales in August 2024 is USD 0.0032 per unit.
+
+### Key Metrics Summary
+- **Primary Metric**: USD 0.0032/unit (ASP for August 2024 shipment sales).
+- **Context/Share**: Reflects company-wide average for all brands and products, using only SHIPMENT order type.
+- **Core Drivers**: This ASP is based on total SHIPMENT revenue and quantity—the most common metric for monitoring topline price trends.
+
+### Strategic Analysis (""The Why"")
+- The ASP reflects market-level pricing across a diverse product range.
+- Large unit volumes in commodity categories typically drive down the overall ASP.
+
+### Recommended Action / Follow-up
+- You might want to analyze ASP trends by brand, region, or product group to spot margin improvement or pricing opportunities.
+
+---
+### Technical Log
+- **SQL Query**:
+```sql
+SELECT SUM(total_sales)/SUM(total_qty) AS average_selling_price
+FROM ods.fact_monthly_sales_poa_billing
+WHERE order_type='SHIPMENT'
+  AND year_month='2024-08'
+```
+- **Filters Applied**: order_type='SHIPMENT', year_month='2024-08'
+- **Time Range**: 2024-08
+- **Data Source**: ods.fact_monthly_sales_poa_billing","[""SELECT \n  SUM(total_sales) / NULLIF(SUM(total_qty), 0) AS average_selling_price\nFROM ods.fact_monthly_sales_poa_billing\nWHERE year_month = '2024-08' AND order_type = 'SHIPMENT'"", ""SELECT \\n  SUM(total_sales) / NULLIF(SUM(total_qty), 0) AS average_selling_price\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE pbg = \\u0027Capacitor\\u0027 AND year_month LIKE \\u00272024-%\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""}]""]",0,FAIL,"No Agent Answer content was provided in the prompt to compare against the Ground Truth. Without the Agent's response, we cannot assess the SQL logic, dimensions, and filters alignment. Ground Truth emphasizes using year_month = '2024-08' and order_type = 'SHIPMENT' with ASP calculated as total_sales / total_qty, but evaluation cannot be completed without the agent's actual answer."
+L1,Show me the total bookings for 2024-03.,Total Bookings,N/A,"Executive Summary
+- The total bookings for 2024-03 (March 2024) is USD 2,750,320.80.
+
+Key Metrics Summary
+- Primary Metric: USD 2,750,320.80
+- Context/Share: Period analyzed is 2024-03; no YoY or market-share data available in this view.
+- Core Drivers: Booking value appears to be driven by a broad mix of customers and products; a deeper drill-down by region and brand is recommended to identify the primary contributors.
+
+Strategic Analysis (""The Why"")
+- Steady, broad-based demand in March 2024 suggests healthy demand across multiple customer segments; no single driver dominates the total.
+- A detailed breakdown by ru (region) and brand/pbg will reveal which areas are most responsible for the March bookings and where to focus capacity.
+
+Recommended Action / Follow-up
+- Would you like a breakdown of 2024-03 by region (ru) and by brand (brand/pbg/pbu) to identify top contributors?
+- If you need a YoY or MoM view, specify the comparison you want and I can provide it within the 2022-01 to 2025-10 window.
+
+Technical Log
+- SQL Query:
+  SELECT
+      year_month,
+      SUM(total_sales) AS total_sales,
+      MAX(updated_date) AS updated_date
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-03'
+  GROUP BY year_month;
+
+- Filters Applied: year_month = '2024-03' (booking dataset)
+- Time Range: 2024-03 to 2024-03
+- Data Source: ods.fact_monthly_sales_poa_booking","### Executive Summary
+- **[Headline Statement]**: Total bookings for March 2024 amounted to USD 316.7M.
+
+### Key Metrics Summary
+- **Primary Metric**: USD 316.7M (single month value).
+- **Context/Share**: Represents all brands, customers, and geographies combined for the period.
+- **Core Drivers**: Booking volume reflects consolidated market demand signals leading into Q2 2024.
+
+### Strategic Analysis (""The Why"")
+- Strong bookings may indicate robust pipeline and forward demand across regions.
+- Potentially influenced by seasonality, key customer program ramps, or favorable macroeconomic trends.
+
+### Recommended Action / Follow-up
+- Evaluate bookings breakdown by key region or top customers in March 2024 to identify specific growth sources or risk areas.
+
+---
+### Technical Log
+- **SQL Query**:
+```sql
+SELECT year_month, SUM(total_sales) AS total_booking_sales
+FROM ods.fact_monthly_sales_poa_booking
+WHERE year_month = '2024-03'
+GROUP BY year_month
+```
+- **Filters Applied**: year_month='2024-03'
+- **Time Range**: March 2024
+- **Data Source**: ods.fact_monthly_sales_poa_booking","[""SELECT year_month, SUM(total_sales) AS total_booking_sales, MAX(updated_date) AS updated_date\nFROM ods.fact_monthly_sales_poa_booking\nWHERE year_month = '2024-03'\nGROUP BY year_month"", ""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""}]""]",88,PASS,"The Agent Answer aligns with the Ground Truth in terms of data source (ods.fact_monthly_sales_poa_booking), the time filter (year_month = '2024-03'), and the overall aggregation pattern (SUM of a total_sales measure grouped by year_month). The exact numeric total can differ in synthetic data contexts, but the logic, dimensions, and filters are correct (one minor difference is alias naming and a slightly different field list, e.g., updated_date not included in the Actual). Overall, the approach is consistent with the expected SQL and reporting structure for total bookings by month."
+L1,What is the total booking quantity for 2024-05?,Total Booking Qty,N/A,"Executive Summary
+- The total booking quantity for 2024-05 is 8,719 units.
+
+Key Metrics Summary
+- Primary Metric: 8,719 units (Period: 2024-05)
+- Context/Share: Booking volume for the period
+- Core Drivers: Steady demand in core regions and a typical May uplift in bookings
+
+Strategic Analysis (""The Why"")
+- May 2024 bookings reflect solid demand fundamentals across key segments; no notable spikes or declines beyond typical seasonal pattern.
+- Booking activity remains stronger where ongoing pipeline and lead times align with customers' production schedules.
+
+Recommended Action / Follow-up
+- Consider a deeper dive into region/brand drivers for May 2024 bookings to identify specific contributors (e.g., top sub_units or brands) and validate if the May pattern persists into June.
+
+Technical Log
+- SQL Query:
+  SELECT SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-05';
+- Filters Applied: year_month = '2024-05'; data_source = ods.fact_monthly_sales_poa_booking
+- Time Range: 2024-05 to 2024-05
+- Data Source: ods.fact_monthly_sales_poa_booking","### Executive Summary
+- **[Headline Statement]**: The total booking quantity for May 2024 is approximately 91.8 billion units.
+
+### Key Metrics Summary
+- **Primary Metric**: 91,816,017,884 units (all products, brands, and regions).
+- **Context/Share**: Represents the complete booking quantity for May 2024.
+- **Core Drivers**: Volume reflects consolidated bookings across all YAGEO reporting divisions.
+
+### Strategic Analysis (""The Why"")
+- High booking quantity may indicate strong demand forecasting or large-volume contracts across multiple segments.
+- Significant activity could be tied to restocking cycles or specific OEM orders.
+
+### Recommended Action / Follow-up
+- You might want to review the booking distribution by product business group (PBG) or region to identify key growth drivers for this month.
+
+---
+### Technical Log
+- **SQL Query**:
+```sql
+SELECT year_month, SUM(total_qty) AS total_booking_qty
+FROM ods.fact_monthly_sales_poa_booking
+WHERE year_month = '2024-05'
+GROUP BY year_month;
+```
+- **Filters Applied**: year_month='2024-05'
+- **Time Range**: 2024-05
+- **Data Source**: ods.fact_monthly_sales_poa_booking","[""SELECT year_month, SUM(total_qty) AS total_booking_qty, MAX(updated_date) AS updated_date\nFROM ods.fact_monthly_sales_poa_booking\nWHERE year_month = '2024-05'\nGROUP BY year_month"", ""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""}]""]",0,FAIL,"No Agent Answer was provided to compare against the Ground Truth. Without the actual Agent Answer, we cannot assess alignment on SQL logic, dimensions (e.g., year_month, total_qty/total_booking_qty), or filters (year_month = '2024-05') as described in the Ground Truth."
+L1,What is the book-to-bill ratio for 2024-04?,Total Bookings,N/A,"Executive Summary
+- The Book-to-Bill ratio for April 2024 is 121.4%.
+
+Key Metrics Summary
+- Primary Metric: 121.4% (BB Ratio = Billing (Shipment) USD 5,100,000 / Booking USD 4,200,000)
+- Context/Share: Booking value USD 4.20M; Billing (Shipment) value USD 5.10M for 2024-04
+- Core Drivers: Shipment-led billing outpaced bookings in April 2024, resulting in a BB ratio above 1.0.
+
+Strategic Analysis (""The Why"")
+- The BB ratio above 100% indicates shipments outpaced bookings in April 2024, suggesting a stronger shipment realization relative to order intake for that month.
+- This could reflect timing differences between orders received and shipments billed, or a surge in shipment activity within the period.
+
+Recommended Action / Follow-up
+- drill into the April 2024 booking pipeline by brand/region to determine if short-term shipments were scheduled against longer lead-time bookings.
+- Compare April 2024 booking trends with shipment schedules to assess pipeline health and forecast accuracy for upcoming months.
+
+Technical Log
+- SQL Query:
+  (SQL shown in code block below)
+- Filters Applied:
+  - Billing: year_month = '2024-04', order_type = 'SHIPMENT'
+  - Booking: year_month = '2024-04'
+- Time Range: 2024-04 to 2024-04
+- Data Source: ods.fact_monthly_sales_poa_billing (for SHIPMENT), ods.fact_monthly_sales_poa_booking (for BOOKING)
+
+SQL Query
+WITH billing_shipments AS (
+  SELECT
+    year_month,
+    SUM(total_sales) AS shipment_sales
+  FROM
+    ods.fact_monthly_sales_poa_billing
+  WHERE
+    year_month = '2024-04'
+    AND order_type = 'SHIPMENT'
+  GROUP BY year_month
+),
+booking_values AS (
+  SELECT
+    year_month,
+    SUM(total_sales) AS booking_sales
+  FROM
+    ods.fact_monthly_sales_poa_booking
+  WHERE
+    year_month = '2024-04'
+  GROUP BY year_month
+)
+SELECT
+  b.year_month AS year_month,
+  b.shipment_sales,
+  bk.booking_sales,
+  ROUND((b.shipment_sales / NULLIF(bk.booking_sales, 0)) * 100, 1) AS bb_ratio_percent
+FROM
+  billing_shipments b
+JOIN
+  booking_values bk
+ON
+  bk.year_month = b.year_month;
+
+Filters Applied (explicit)
+- year_month = '2024-04'
+- Billing: order_type = 'SHIPMENT'
+- Booking: year_month = '2024-04'
+
+Time Range
+- 2024-04 to 2024-04
+
+Data Source
+- ods.fact_monthly_sales_poa_billing
+- ods.fact_monthly_sales_poa_booking
+
+Notes
+- Book-to-Bill Ratio (BB Ratio) is calculated as: Billing Sales (SHIPMENT) / Booking Sales.
+- If you’d like, I can break this down by brand, region, or product hierarchy for more granular insight.","### Executive Summary
+- **[Headline Statement]**: The book-to-bill ratio for April 2024 is approximately 0.95.
+
+### Key Metrics Summary
+- **Primary Metric**: Bookings USD 316.93M vs. Billings USD 331.90M (April 2024).
+- **Context/Share**: Book-to-bill ratio = 0.95 (i.e., bookings were less than shipments).
+- **Core Drivers**: Primarily influenced by strong billing shipments compared to slightly lower bookings.
+
+### Strategic Analysis (""The Why"")
+- Billing outpaced bookings in April, indicating existing backlog or prior demand fulfillment.
+- Potential temporary slow-down in new orders compared to delivery pace.
+
+### Recommended Action / Follow-up
+- You may want to investigate backlog levels or recent booking trends to assess pipeline health.
+
+---
+### Technical Log
+- **SQL Query**: 
+```sql
+-- Bookings
+SELECT SUM(total_sales) as total_booking_sales
+FROM ods.fact_monthly_sales_poa_booking
+WHERE year_month='2024-04';
+-- Billings (SHIPMENT only)
+SELECT SUM(total_sales) as total_billing_sales
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month='2024-04' AND order_type='SHIPMENT';
+```
+- **Filters Applied**: year_month='2024-04', order_type='SHIPMENT' for billing
+- **Time Range**: April 2024
+- **Data Source**: ods.fact_monthly_sales_poa_booking, ods.fact_monthly_sales_poa_billing","[""WITH booking AS (\n  SELECT \n    SUM(total_sales) AS total_booking_sales,\n    MAX(updated_date) AS booking_updated_date\n  FROM ods.fact_monthly_sales_poa_booking\n  WHERE year_month = '2024-04' AND order_type = 'SHIPMENT'\n),\nbilling AS (\n  SELECT \n    SUM(total_sales) AS total_billing_sales,\n    MAX(updated_date) AS billing_updated_date\n  FROM ods.fact_monthly_sales_poa_billing\n  WHERE year_month = '2024-04' AND order_type = 'SHIPMENT'\n)\nSELECT \n  booking.total_booking_sales,\n  billing.total_billing_sales,\n  CAST(booking.total_booking_sales / NULLIF(billing.total_billing_sales, 0) AS DECIMAL(10,2)) AS book_to_bill_ratio,\n  booking.booking_updated_date,\n  billing.billing_updated_date\nFROM booking, billing"", ""WITH booking AS (\n  SELECT \n    SUM(total_sales) AS total_booking_sales,\n    MAX(updated_date) AS booking_updated_date\n  FROM ods.fact_monthly_sales_poa_booking\n  WHERE year_month = '2024-04' AND order_type = 'SHIPMENT'\n),\nbilling AS (\n  SELECT \n    SUM(total_sales) AS total_billing_sales,\n    MAX(updated_date) AS billing_updated_date\n  FROM ods.fact_monthly_sales_poa_billing\n  WHERE year_month = '2024-04' AND order_type = 'SHIPMENT'\n)\nSELECT \n  booking.total_booking_sales,\n  billing.total_billing_sales,\n  CAST(booking.total_booking_sales / NULLIF(billing.total_billing_sales, 0) AS DECIMAL(18,4)) AS book_to_bill_ratio,\n  booking.booking_updated_date,\n  billing.billing_updated_date\nFROM booking, billing"", ""WITH booking AS (\n  SELECT \n    SUM(total_sales) AS total_booking_sales,\n    MAX(updated_date) AS booking_updated_date\n  FROM ods.fact_monthly_sales_poa_booking\n  WHERE order_type = 'SHIPMENT' AND year_month = '2024-04'\n),\nbilling AS (\n  SELECT \n    SUM(total_sales) AS total_billing_sales,\n    MAX(updated_date) AS billing_updated_date\n  FROM ods.fact_monthly_sales_poa_billing\n  WHERE order_type = 'SHIPMENT' AND year_month = '2024-04'\n)\nSELECT \n  booking.total_booking_sales,\n  booking.booking_updated_date,\n  billing.total_billing_sales,\n  billing.billing_updated_date,\n  CAST(booking.total_booking_sales / NULLIF(billing.total_billing_sales, 0) AS DECIMAL(18,4)) AS book_to_bill_ratio\nFROM booking, billing"", ""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total backlog sales in 2025 Feb.\"",\""query\"":\""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""}]"", ""SELECT year_month, SUM(total_sales) AS total_booking_sales, MAX(updated_date) AS updated_date\nFROM ods.fact_monthly_sales_poa_booking\nWHERE year_month = '2024-04'\nGROUP BY year_month"", ""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Compare total sales for Great China in 2024-12 with 2023-12 (YoY).\"",\""query\"":\""WITH sales_data AS (\\n  SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""}]""]",35,FAIL,"Strengths: The approach uses the same data sources and filters (year_month = '2024-04'; Billing SHIPMENT; Booking by year_month; join on year_month) and targets the Book-to-Bill ratio. The technical log shows separate queries for bookings and billings, which is consistent with computing a BB ratio from two aggregates. Weaknesses: The ratio orientation is incorrect relative to Ground Truth. Ground Truth defines BB ratio as Shipping (SHIPMENT) divided by Booking (BOOKING), yielding >100% in April 2024 (121.4%). The provided content reports a BB ratio of 0.95, which corresponds to Booking divided by Billing (or an inversion), not Shipping divided by Booking. Additionally, the Notes explicitly state the ratio is Billing (SHIPMENT) / Booking, while the actual computation appears to use Booking / Billing. This inconsistency leads to an incorrect ratio value and interpretation. To align with Ground Truth, compute bb_ratio = SUM(shipment_total) / SUM(booking_total) and report 121.4% (or equivalent) for 2024-04, with the same filters and sources. Including a breakdown by brand/region as an option is fine, but the core ratio calculation must match the defined definition."
+L1,What is the month-over-month change in total billing for 2023-05?,Total Billing,N/A,"Executive Summary
+- The month-over-month change in total billing (SHIPMENT) from April 2023 to May 2023 is USD 168,000.00, a +11.1% increase in May 2023.
+
+Key Metrics Summary
+- Primary Metric: MoM Change in total billing (May vs April) = USD 168,000.00 (+11.1%)
+- May 2023 total billing (SHIPMENT): USD 1,688,000.00
+- April 2023 total billing (SHIPMENT): USD 1,520,000.00
+- Context/Share: Two-month comparison; May 2023 shows a notable uplift against April 2023.
+- Core Drivers: The May uptick reflects stronger shipments in the period; a deeper dive by region/brand would pinpoint the exact contributors.
+
+Strategic Analysis (""The Why"")
+- Seasonal or demand-driven uplift observed in May 2023 relative to April 2023; potential tier-1 customer activity and end-market recovery may be contributing factors.
+- Recommend drilling down into brand, region (ru/sub_unit), and product hierarchy (pbg/pbu) to identify the primary drivers behind the MoM change.
+
+Recommended Action / Follow-up
+- Request or run a drill-down by brand and region for May 2023 vs April 2023 to identify top contributors (e.g., which brands or regions drove the uplift).
+- Consider extending the MoM analysis to include GM% and ASP by month to check if higher billing coincides with margin or pricing changes.
+
+Technical Log
+- SQL Query:
+  WITH m AS (
+    SELECT year_month, SUM(total_sales) AS total_sales
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month IN ('2023-04','2023-05')
+      AND order_type = 'SHIPMENT'
+    GROUP BY year_month
+  )
+  SELECT
+    mMay.year_month AS month,
+    mMay.total_sales AS May_total_sales,
+    mApr.total_sales AS Apr_total_sales,
+    (mMay.total_sales - mApr.total_sales) AS mom_change_usd,
+    CASE WHEN mApr.total_sales <> 0 THEN ((mMay.total_sales - mApr.total_sales) / mApr.total_sales) * 100.0 END AS mom_change_pct
+  FROM
+    (SELECT * FROM m WHERE year_month = '2023-05') AS mMay
+    JOIN
+    (SELECT * FROM m WHERE year_month = '2023-04') AS mApr;
+- Filters Applied: year_month IN ('2023-04','2023-05'), order_type = 'SHIPMENT'
+- Time Range: 2023-04 to 2023-05
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: All figures are monthly aggregates and pertain to billing/shipment-only data as per the default data model. If you’d like the analysis to include non-shipment billing (e.g., backlog, consignment) or to switch to the Booking table for total bookings, I can adjust the query accordingly.","### Executive Summary
+- **[Headline Statement]**: Total billing sales in May 2023 increased marginally compared to April 2023.
+
+### Key Metrics Summary
+- **Primary Metric**: USD 322.3M (MoM +0.27%).
+- **Context/Share**: Reflects core shipment-based billing across all brands and geographies.
+- **Core Drivers**: Performance was stable, with minor variations likely due to seasonal or supply-chain factors.
+
+### Strategic Analysis (""The Why"")
+- Slight month-over-month growth suggests a stable demand environment.
+- No significant surge or drop in shipment-based revenues, indicating regular business activity.
+
+### Recommended Action / Follow-up
+- You may want to investigate specific brands or regions for any underlying shifts or micro-trends within the month's performance.
+
+---
+### Technical Log
+- **SQL Query**:
+```sql
+SELECT 
+  SUM(CASE WHEN year_month = '2023-05' THEN total_sales END) AS current_sales,
+  MAX(CASE WHEN year_month = '2023-05' THEN updated_date END) AS current_updated_date,
+  SUM(CASE WHEN year_month = '2023-04' THEN total_sales END) AS prior_sales,
+  MAX(CASE WHEN year_month = '2023-04' THEN updated_date END) AS prior_updated_date,
+  (SUM(CASE WHEN year_month = '2023-05' THEN total_sales END) - SUM(CASE WHEN year_month = '2023-04' THEN total_sales END)) / SUM(CASE WHEN year_month = '2023-04' THEN total_sales END) * 100 AS MoM_percent
+FROM ods.fact_monthly_sales_poa_billing
+WHERE order_type = 'SHIPMENT'
+  AND (year_month = '2023-05' OR year_month = '2023-04')
+```
+- **Filters Applied**: order_type='SHIPMENT'
+- **Time Range**: 2023-04 to 2023-05
+- **Data Source**: ods.fact_monthly_sales_poa_billing","[""WITH sales_data AS (\n  SELECT \n    year_month, \n    SUM(total_sales) AS total_sales,\n    MAX(updated_date) AS updated_date\n  FROM ods.fact_monthly_sales_poa_billing\n  WHERE order_type = 'SHIPMENT'\n    AND year_month IN ('2023-05', '2023-04')\n  GROUP BY year_month\n)\nSELECT \n  curr.total_sales AS current_sales,\n  curr.updated_date AS current_updated_date,\n  prior.total_sales AS prior_sales,\n  prior.updated_date AS prior_updated_date,\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS MoM_percent\nFROM (SELECT total_sales, updated_date FROM sales_data WHERE year_month = '2023-05') curr\nLEFT JOIN (SELECT total_sales, updated_date FROM sales_data WHERE year_month = '2023-04') prior ON 1=1"", ""WITH sales_data AS (\n  SELECT \n    year_month, \n    SUM(total_sales) AS total_sales,\n    MAX(updated_date) AS updated_date\n  FROM ods.fact_monthly_sales_poa_billing\n  WHERE order_type = 'SHIPMENT'\n    AND year_month IN ('2023-05', '2023-04')\n  GROUP BY year_month\n)\nSELECT \n  curr.total_sales AS current_sales,\n  prior.total_sales AS prior_sales,\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS MoM_percent,\n  curr.updated_date\nFROM (SELECT total_sales, updated_date FROM sales_data WHERE year_month = '2023-05') curr\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = '2023-04') prior ON 1=1"", ""SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total backlog sales in 2025 Feb.\"",\""query\"":\""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""}]""]",55,FAIL,"The user asked for the MoM change in total billing for 2023-05 with exact figures (May total, Apr total, MoM USD change, and MoM percent) based on shipment billing. Ground Truth provides: May total 1,688,000; Apr total 1,520,000; MoM change 168,000 USD; MoM +11.1%. The actual answer does not present these requested figures. It reports a different scale (322.3M), a MoM of +0.27%, and a narrative without the explicit 2023-05 MoM change in USD. While the SQL filters (SHIPMENT) and months (2023-04, 2023-05) are aligned, the final numbers and formatting do not meet the requested output. Therefore, despite some alignment in dimensions and filters, the result fails to deliver the required MoM change figure.}"
+L1,What is the QoQ change in total billing for 2024-04?,Total Billing,N/A,"Executive Summary
+- The total Billing (SHIPMENT) for 2024-04 is USD 5,420,750.30.
+
+Key Metrics Summary
+- Primary Metric: USD 5,420,750.30
+- Context/Share: QoQ change is not computed in this response (requires prior quarter data).
+- Core Drivers: Noted in this view; if you’d like, I can pull Q1 2024 totals to enable a QoQ comparison and identify drivers by region/brand.
+
+Strategic Analysis (""The Why"")
+- April 2024 billing level reflects typical spring shipment activity; to attribute the delta precisely, we can compare against the preceding quarter (Q1 2024) and breakdown by key dimensions (brand, ru/ sub_unit, pbg/pbu).
+
+Recommended Action / Follow-up
+- I can compute the QoQ change by aggregating Q1 2024 (Jan–Mar 2024) versus Q2 2024 (Apr–Jun 2024) totals and provide the delta and a breakdown by dimension (brand, region, product). Would you like me to proceed with that?
+
+Technical Log
+- SQL Query:
+  SELECT year_month,
+         SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-04'
+    AND order_type = 'SHIPMENT'
+  GROUP BY year_month;
+- Filters Applied: year_month = '2024-04'; order_type = 'SHIPMENT'
+- Time Range: 2024-04
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: The QoQ (quarter-over-quarter) change requires prior-quarter data (e.g., Q1 2024 totals) to compute the delta. If you want, I can fetch Q1 2024 totals and provide the QoQ change and a breakdown by dimension.","### Executive Summary
+- **Q2 2024 Billing Down Sharply QoQ**: The quarter-over-quarter (QoQ) change in total billing for April 2024 shows a significant decrease compared to Q1 2024.
+
+### Key Metrics Summary
+- **April 2024 Billing Sales**: USD 331.9M
+- **Q1 2024 Billing Sales (Jan–Mar)**: USD 906.4M
+- **QoQ Change**: -63.4%
+- **Context/Share**: April alone is substantially below the quarterly run rate seen in Q1 2024.
+
+### Strategic Analysis (""The Why"")
+- This drop may be due to typical seasonality, a shift in customer purchasing cycles after Q1, or specific macroeconomic or supply chain disruptions.
+- Potential backloading of shipments or customer ordering patterns could have contributed to a lighter start to Q2.
+
+### Recommended Action / Follow-up
+- Consider reviewing May and June 2024 trends to see if Q2 recovers, or request a brand/sub-region breakdown to identify localized drivers in the downturn.
+
+---
+### Technical Log
+- **SQL Query**:
+```sql
+-- Pseudo summary of SQL logic
+SELECT 
+  SUM(CASE WHEN year_month = '2024-04' THEN total_sales ELSE 0 END) AS april_2024_sales,
+  SUM(CASE WHEN year_month IN ('2024-01', '2024-02', '2024-03') THEN total_sales ELSE 0 END) AS q1_2024_sales,
+  ((SUM(CASE WHEN year_month = '2024-04' THEN total_sales ELSE 0 END) 
+    / NULLIF(SUM(CASE WHEN year_month IN ('2024-01', '2024-02', '2024-03') THEN total_sales ELSE 0 END),0)) - 1) * 100 AS QoQ_percent
+FROM ods.fact_monthly_sales_poa_billing
+WHERE order_type='SHIPMENT' AND year_month IN ('2024-01', '2024-02', '2024-03', '2024-04')
+```
+- **Filters Applied**: order_type='SHIPMENT'
+- **Time Range**: 2024-01 to 2024-04 (Q1 2024 and April 2024)
+- **Data Source**: ods.fact_monthly_sales_poa_billing","[""WITH sales_data AS (\n  SELECT \n    year_month, \n    SUM(total_sales) AS total_sales\n  FROM ods.fact_monthly_sales_poa_billing\n  WHERE order_type = 'SHIPMENT'\n    AND year_month IN ('2024-01', '2024-02', '2024-03', '2024-04')\n  GROUP BY year_month\n),\nq1_sales AS (\n  SELECT SUM(total_sales) AS q1_total_sales\n  FROM sales_data\n  WHERE year_month IN ('2024-01', '2024-02', '2024-03')\n),\napr_sales AS (\n  SELECT total_sales AS apr_total_sales\n  FROM sales_data\n  WHERE year_month = '2024-04'\n)\nSELECT \n  apr_sales.apr_total_sales AS april_2024_sales,\n  q1_sales.q1_total_sales AS q1_2024_sales,\n  CAST((apr_sales.apr_total_sales - q1_sales.q1_total_sales) * 100.0 / NULLIF(q1_sales.q1_total_sales, 0) AS DECIMAL(10,2)) AS QoQ_percent\nFROM apr_sales\nCROSS JOIN q1_sales"", ""WITH sales_data AS (\n  SELECT \n    year_month, \n    SUM(total_sales) AS total_sales,\n    MAX(updated_date) AS updated_date\n  FROM ods.fact_monthly_sales_poa_billing\n  WHERE order_type = 'SHIPMENT'\n    AND year_month IN ('2024-01', '2024-02', '2024-03', '2024-04')\n  GROUP BY year_month\n),\nq1_sales AS (\n  SELECT \n    SUM(total_sales) AS q1_total_sales,\n    MAX(updated_date) AS q1_updated_date\n  FROM sales_data\n  WHERE year_month IN ('2024-01', '2024-02', '2024-03')\n),\napr_sales AS (\n  SELECT \n    total_sales AS apr_total_sales,\n    updated_date AS apr_updated_date\n  FROM sales_data\n  WHERE year_month = '2024-04'\n)\nSELECT \n  apr_sales.apr_total_sales AS april_2024_sales,\n  q1_sales.q1_total_sales AS q1_2024_sales,\n  CAST((apr_sales.apr_total_sales - q1_sales.q1_total_sales) * 100.0 / NULLIF(q1_sales.q1_total_sales, 0) AS DECIMAL(10,2)) AS QoQ_percent,\n  apr_sales.apr_updated_date AS april_updated_date,\n  q1_sales.q1_updated_date AS q1_updated_date\nFROM apr_sales\nCROSS JOIN q1_sales"", ""WITH sales_data AS (\n  SELECT \n    year_month, \n    SUM(total_sales) AS total_sales\n  FROM ods.fact_monthly_sales_poa_billing\n  WHERE order_type = 'SHIPMENT' \n    AND year_month IN ('2024-01', '2024-02', '2024-03', '2024-04')\n  GROUP BY year_month\n),\nq1_sales AS (\n  SELECT SUM(total_sales) AS q1_total_sales\n  FROM sales_data\n  WHERE year_month IN ('2024-01', '2024-02', '2024-03')\n),\napr_sales AS (\n  SELECT total_sales AS apr_total_sales\n  FROM sales_data\n  WHERE year_month = '2024-04'\n)\nSELECT \n  apr_sales.apr_total_sales AS april_2024_sales,\n  q1_sales.q1_total_sales AS q1_2024_sales,\n  CAST((apr_sales.apr_total_sales - q1_sales.q1_total_sales/3) * 100.0 / NULLIF(q1_sales.q1_total_sales/3, 0) AS DECIMAL(10,2)) AS QoQ_percent,\n  (SELECT MAX(updated_date) FROM ods.fact_monthly_sales_poa_billing) AS updated_date\nFROM apr_sales\nCROSS JOIN q1_sales"", ""SELECT \\n    year_month, \\n    SUM(total_sales) AS total_sales\\n  FROM ods.fact_monthly_sales_poa_billing\\n  WHERE ru = \\u0027GREAT CHINA\\u0027 AND order_type = \\u0027SHIPMENT\\u0027\\n    AND year_month IN (\\u00272024-12\\u0027, \\u00272023-12\\u0027)\\n  GROUP BY year_month\\n)\\nSELECT \\n  curr.total_sales AS current_sales,\\n  prior.total_sales AS prior_sales,\\n  CAST((curr.total_sales - prior.total_sales) * 100.0 / NULLIF(prior.total_sales, 0) AS DECIMAL(10,2)) AS YoY_percent\\nFROM (SELECT total_sales FROM sales_data WHERE year_month = \\u00272024-12\\u0027) curr\\nLEFT JOIN (SELECT total_sales FROM sales_data WHERE year_month = \\u00272023-12\\u0027) prior ON 1=1\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total backlog sales in 2025 Feb.\"",\""query\"":\""SELECT year_month, SUM(total_sales) AS total_backlog\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE order_type \\u003C\\u003E \\u0027SHIPMENT\\u0027 AND year_month = \\u00272025-02\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Show me the total OTR sales for YAGEO. (Always assume this month it not provided time range.)\"",\""query\"":\""SELECT year_month, SUM(total_sales) as total_sales\\nFROM [ods].[fact_monthly_sales_poa_billing]\\nWHERE year_month = FORMAT(GETDATE(), \\u0027yyyy-MM\\u0027) \\nAND brand = \\u0027YAGEO\\u0027\\nGROUP BY year_month\"",\""queryLanguage\"":\""sql\""},{\""question\"":\""Analyze Gross Profit (GP) for Brand YAGEO in Q4 2024.\"",\""query\"":\""SELECT \\n  SUM(total_sales) AS revenue,\\n  SUM(total_cost) AS cost,\\n  SUM(total_sales) - SUM(total_cost) AS gross_profit\\nFROM ods.fact_monthly_sales_poa_billing\\nWHERE brand = \\u0027YAGEO\\u0027 AND year_month IN (\\u00272024-10\\u0027, \\u00272024-11\\u0027, \\u00272024-12\\u0027) AND order_type = \\u0027SHIPMENT\\u0027\"",\""queryLanguage\"":\""sql\""}]""]",42,FAIL,"Ground Truth states that QoQ change should not be computed in this response and requires prior-quarter data (Q1 2024) to compute the delta. The agent, however, computes a QoQ change (April vs Q1) and presents a delta, which deviates from the expected content. While the filters and dimension (order_type = SHIPMENT, year_month) are aligned, the explicit QoQ calculation and multi-month aggregation exceed what the Ground Truth specifies for this query. Therefore, the logic/content diverges from the ground truth despite similar data sources."

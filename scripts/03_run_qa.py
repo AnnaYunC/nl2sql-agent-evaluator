@@ -66,7 +66,7 @@ def main():
         )
         output = f"data/qa/step1_questions_{timestamp}.csv"
         with open(output, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=["difficulty", "question", "metric", "dimension"])
+            writer = csv.DictWriter(f, fieldnames=["difficulty", "question", "metric", "dimension"], quoting=csv.QUOTE_ALL)
             writer.writeheader()
             writer.writerows(questions)
         print(f"Step 1 Completed. Questions saved to {output}")
@@ -106,7 +106,7 @@ def main():
         
         output = f"data/qa/step2_truth_{timestamp}.csv"
         with open(output, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()), quoting=csv.QUOTE_ALL)
             writer.writeheader()
             writer.writerows(rows)
         print(f"Step 2 Completed. Ground truth saved to {output}")
@@ -139,7 +139,7 @@ def main():
             
         output = f"data/qa/step3_results_{timestamp}.csv"
         with open(output, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()), quoting=csv.QUOTE_ALL)
             writer.writeheader()
             writer.writerows(rows)
         print(f"Execution results saved to {output}")
@@ -174,7 +174,7 @@ def main():
             
         output = f"data/qa/step4_final_{timestamp}.csv"
         with open(output, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()), quoting=csv.QUOTE_ALL)
             writer.writeheader()
             writer.writerows(rows)
         print(f"Step 4 Completed. Final evaluation saved to {output}")

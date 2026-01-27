@@ -1,0 +1,11 @@
+difficulty,question,metric,dimension
+L1,What is the total billing for 2024-06?,Total Billing,N/A
+L1,What is the total cost for 2024-07?,Total Cost,N/A
+L1,What is the gross profit for 2024-07?,Gross Profit,N/A
+L1,What is the GM% for 2024-08?,Gross Margin % (GM%),N/A
+L1,What is the ASP for 2024-08?,Average Selling Price (ASP),N/A
+L1,Show me the total bookings for 2024-03.,Total Bookings,N/A
+L1,What is the total booking quantity for 2024-05?,Total Booking Qty,N/A
+L1,What is the book-to-bill ratio for 2024-04?,Total Bookings,N/A
+L1,What is the month-over-month change in total billing for 2023-05?,Total Billing,N/A
+L1,What is the QoQ change in total billing for 2024-04?,Total Billing,N/A

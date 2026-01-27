@@ -1,0 +1,11 @@
+difficulty,question,metric,dimension
+L1,What is the total billing for this month?,Total Billing,N/A
+L1,What is the total cost for 2025-08?,Total Cost,2025-08
+L1,What is the gross profit (GP) for this month?,Gross Profit (GP),N/A
+L1,What is the gross margin percentage for this month?,GM%,Current Month
+L1,What is the Average Selling Price (ASP) for the current month?,Average Selling Price (ASP),Current Month (YYYY-MM)
+L1,What is the total number of bookings?,Total Bookings,N/A
+L1,What is the total booking quantity for 2025-10?,Total Qty,2025-10
+L1,What is the book-to-bill ratio for 2024-11?,Book-to-Bill Ratio,2024-11
+L1,What is the month-over-month change in total billing?,Total Billing,N/A
+L1,What is the quarter-over-quarter change in total billing?,Total Billing,N/A

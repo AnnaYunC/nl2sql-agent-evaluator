@@ -1,0 +1,281 @@
+difficulty,question,metric,dimension,expected_answer
+L1,What is the total billing for 2023-07?,Total Billing,N/A,"Executive Summary
+- The total billing for 2023-07 (SHIPMENT) is USD 4,812,345.67.
+
+Key Metrics Summary
+- Primary Metric: USD 4,812,345.67 (Trend: N/A)
+- Context/Share: Billing via SHIPMENT for July 2023 (shipment-only, monthly total)
+- Core Drivers: Leading contributions from Telemecanique across the AMERICAS region
+
+Strategic Analysis (""The Why"")
+- July 2023 performance appears driven by strong shipment billing in the AMERICAS, with Telemecanique representing the top-brand contribution within that period.
+- The month hits solid execution in the shipment segment, suggesting stable demand and efficient fulfillment for the period.
+
+Recommended Action / Follow-up
+- Drill into brand-level and regional breakdown for July 2023 to identify specific growth levers (e.g., top brand in AMERICAS, or a high-performing sub-region).
+- Compare July 2023 to July 2022 to gauge seasonality and mid-year momentum if you want deeper trend context.
+
+Technical Log
+- SQL Query:
+  SELECT
+    year_month,
+    SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2023-07'
+    AND order_type = 'SHIPMENT'
+  GROUP BY year_month;
+
+- Filters Applied:
+  - order_type = 'SHIPMENT'
+  - year_month = '2023-07'
+- Time Range: 2023-07 to 2023-07
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: This response uses the billing dataset (shipment-only) as default when not asked for bookings or backlog. If you’d like the total including non-shipment (OTR) or to switch to bookings, tell me and I’ll adjust."
+L2,What is the total billing for Great China in 2023-01?,total_sales,ru='GREAT CHINA',"Executive Summary
+- The total billing for Great China (ru = GREAT CHINA) in 2023-01 is USD 2,345,678.90.
+
+Key Metrics Summary
+- Primary Metric: USD 2,345,678.90 (YoY vs 2022-01: +2.5%)
+- Context/Share: Not available from the current filtered view (region-level total only)
+- Core Drivers: Not drillable from the current query without additional dimensional filters (brand/pbg/pbu dimensions)
+
+Strategic Analysis (""The Why"")
+- Year-over-year growth in Great China for January 2023 is modest, suggesting steady demand in the region.
+- To attribute the increase to specific products, brands, or sub-regions, we should drill into product hierarchy (pbg/pbu) or brand details in a follow-up query.
+
+Recommended Action / Follow-up
+- To understand the drivers, run a drill-down query by brand and/or product group (pbg/pbu) for 2023-01 within Great China.
+- If you’d like, I can provide a YoY comparison for 2023-01 vs 2022-01 broken down by brand or product family.
+
+Filter Applied
+- year_month = '2023-01'
+- ru = 'GREAT CHINA'
+- order_type = 'SHIPMENT'
+- table: ods.fact_monthly_sales_poa_billing
+- Focus: Billing (total_sales)
+
+Time Range
+- Start Month: 2023-01
+- End Month: 2023-01
+
+Data Source
+- ods.fact_monthly_sales_poa_billing
+
+Technical Log
+- SQL Query:
+  WITH current_data AS (
+    SELECT SUM(total_sales) AS current_total
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2023-01'
+      AND ru = 'GREAT CHINA'
+      AND order_type = 'SHIPMENT'
+  ),
+  prior_data AS (
+    SELECT SUM(total_sales) AS prior_total
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2022-01'
+      AND ru = 'GREAT CHINA'
+      AND order_type = 'SHIPMENT'
+  )
+  SELECT
+    COALESCE(current_total, 0) AS current_total_sales,
+    COALESCE(prior_total, 0) AS prior_total_sales,
+    (COALESCE(current_total, 0) - COALESCE(prior_total, 0)) AS delta_sales,
+    CASE
+      WHEN prior_total IS NULL OR prior_total = 0 THEN NULL
+      ELSE (COALESCE(current_total, 0) - COALESCE(prior_total, 0)) / prior_total * 100
+    END AS yoy_percent
+  FROM current_data
+  CROSS JOIN prior_data;
+
+- Filters Applied:
+  - year_month = '2023-01'
+  - ru = 'GREAT CHINA'
+  - order_type = 'SHIPMENT'
+- Time Range: 2023-01 to 2023-01
+- Data Source: ods.fact_monthly_sales_poa_billing"
+L3,Who are the top 5 Product Business Groups (PBG) by total billing in 2024-11?,total_sales,PBG,"Executive Summary
+- Headline: In November 2024, the top 5 Product Business Groups (PBG) by total billing are Capacitor, Magnetics, Resistors, SENSOR, and OTHER.
+
+Key Metrics Summary
+- Primary Metric: USD 15.05M (Top 5 PBG total billing for 2024-11)
+- Context/Share: Top 5 PBG collectively account for approximately 67% of the total billing for 2024-11
+- Core Drivers:
+  - Capacitor leads the portfolio with USD 4.52M.
+  - Magnetics and Resistors together contribute a substantial portion of the total, driving the majority of the top-5 result.
+  - SENSOR and OTHER round out the top 5 with meaningful contributions, highlighting a diversified demand mix.
+
+Strategic Analysis (""The Why"")
+- The Capacitor category remains the primary growth engine within the billing mix for 2024-11, signaling sustained demand in this PBG.
+- The concentration of activity in Magnetics and Resistors suggests continued strength in core components, with a broad-based contribution from SENSOR and OTHER indicating a diversified product mix.
+
+Recommended Action / Follow-up
+- Deep-dive into regional performance and channel mix for Capacitor and Magnetics to identify regional drivers and potential supply constraints.
+- Consider a targeted review of pricing, promotions, or procurement for the Capacitor and Magnetics categories to sustain momentum into subsequent months.
+
+Technical Log
+- SQL Query:
+  WITH current AS (
+    SELECT pbg,
+           SUM(total_sales) AS current_billing
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2024-11'
+      AND order_type = 'SHIPMENT'
+    GROUP BY pbg
+  ),
+  prior AS (
+    SELECT pbg,
+           SUM(total_sales) AS prior_billing
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2023-11'
+      AND order_type = 'SHIPMENT'
+    GROUP BY pbg
+  ),
+  combined AS (
+    SELECT COALESCE(c.pbg, b.pbg) AS pbg,
+           COALESCE(c.current_billing, 0) AS current_billing,
+           COALESCE(b.prior_billing, 0) AS prior_billing
+    FROM current c
+    FULL OUTER JOIN prior b ON c.pbg = b.pbg
+  )
+  SELECT pbg,
+         current_billing AS total_billing_2024_11,
+         prior_billing AS total_billing_2023_11,
+         CASE WHEN prior_billing = 0 THEN NULL ELSE (current_billing - prior_billing) / prior_billing * 100 END AS yoy_pct
+  FROM combined
+  ORDER BY current_billing DESC
+  LIMIT 5;
+
+- Filters Applied:
+  - year_month = '2024-11'
+  - order_type = 'SHIPMENT'
+- Time Range: 2024-11 (November 2024)
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Notes:
+- The query uses SHIPMENT as the default order_type for billing-related analysis per data rules.
+- If you’d like to see YoY by each PBG in a separate view (without the top-5 cap), I can provide that as well."
+L4,"Calculate the Book-to-Bill ratio for Europe in 2024-11, using the total Booking value from the booking table divided by the total Billing value from the billing table for that month.",Book-to-Bill Ratio,2024-11,"Executive Summary
+The requested Book-to-Bill ratio (Booking value divided by Billing value) for Europe (EMEA) in 2024-11 is 1.12x.
+
+Key Metrics Summary
+- Primary Metric: Booking-to-Bill ratio (Booking / Billing) = 1.12x for 2024-11
+  - YoY Change (vs 2023-11): +0.25%
+- Context/Share: Booking value USD 5,260,000.00; Billing value USD 4,720,000.00 for 2024-11 in EMEA
+- Core Drivers: Booking growth in the Europe/EMEA region coinciding with solid billing, supporting a ratio above 1.0
+
+Strategic Analysis (""The Why"")
+- The EMEA market shows stronger bookings in 2024-11, contributing to a Book-to-Bill ratio above 1.0, indicating demand momentum entering the period.
+- The modest YoY improvement in the ratio suggests bookings grew slightly faster than billings year over year, signaling healthy demand in key EMEA segments during November 2024.
+
+Recommended Action / Follow-up
+- Drill into EMEA sub_unit and brand-level data for 2024-11 to identify which sub-regions or product families are driving the higher bookings.
+- Compare 2024-11 with 2023-11 at the sub-unit and pbg/pbu levels to pinpoint the most influential segments and inform demand planning for upcoming periods.
+
+Technical Log
+SQL Query:
+WITH
+  curr_booking AS (
+    SELECT SUM(total_sales) AS booking_current
+    FROM ods.fact_monthly_sales_poa_booking
+    WHERE year_month = '2024-11'
+      AND ru = 'EMEA'
+  ),
+  curr_billing AS (
+    SELECT SUM(total_sales) AS billing_current
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2024-11'
+      AND ru = 'EMEA'
+      AND order_type = 'SHIPMENT'
+  ),
+  prior_booking AS (
+    SELECT SUM(total_sales) AS booking_prev
+    FROM ods.fact_monthly_sales_poa_booking
+    WHERE year_month = '2023-11'
+      AND ru = 'EMEA'
+  ),
+  prior_billing AS (
+    SELECT SUM(total_sales) AS billing_prev
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2023-11'
+      AND ru = 'EMEA'
+      AND order_type = 'SHIPMENT'
+  )
+SELECT
+  curr_booking.booking_current AS booking_current,
+  curr_billing.billing_current AS billing_current,
+  prior_booking.booking_prev AS booking_prior,
+  prior_billing.billing_prev AS billing_prior,
+  (curr_booking.booking_current / NULLIF(curr_billing.billing_current, 0)) AS booking_to_billing_ratio_current,
+  (prior_booking.booking_prev / NULLIF(prior_billing.billing_prev, 0)) AS booking_to_billing_ratio_prior,
+  CASE
+    WHEN (curr_booking.booking_current / NULLIF(curr_billing.billing_current, 0)) IS NULL
+         OR (prior_booking.booking_prev / NULLIF(prior_billing.billing_prev, 0)) IS NULL THEN NULL
+    ELSE ((curr_booking.booking_current / NULLIF(curr_billing.billing_current, 0))
+          / NULLIF((prior_booking.booking_prev / NULLIF(prior_billing.billing_prev, 0)), 0) - 1) * 100
+  END AS yoy_pct_change
+FROM curr_booking
+CROSS JOIN curr_billing
+CROSS JOIN prior_booking
+CROSS JOIN prior_billing;
+
+Filters Applied
+- year_month = '2024-11' (Booking), ru = 'EMEA'
+- Billing: year_month = '2024-11', ru = 'EMEA', order_type = 'SHIPMENT'
+- Prior year comparison uses 2023-11 with the same ru and order_type filter for billing
+
+Time Range
+- Current period: 2024-11
+- Prior-year reference: 2023-11 (for YoY)
+
+Data Source
+- ods.fact_monthly_sales_poa_booking
+- ods.fact_monthly_sales_poa_billing
+
+Note on Calculation
+- The primary metric shown is the Book-to-Bill ratio as Booking/Billing (per user instruction). The system’s canonical BB Ratio is Billing/Booking; if you’d like, I can also present that canonical metric and the full YoY comparison for it."
+L5,"What was the Sales YoY growth for Total Billing in 2025-08, and how did it compare to 2024-08?",Sales YoY,year_month,"Executive Summary
+- The YoY growth for Total Billing (Shipment sub-set) in 2025-08 is +12.4% versus 2024-08. Current period: USD 12.35M; Prior period: USD 10.99M.
+
+Key Metrics Summary
+- Primary Metric: USD 12.35M (YoY +12.4%)
+- Context/Share: YoY growth of +12.4% from 2024-08 to 2025-08
+- Core Drivers: Growth driven by shipments in the Americas and Great China regions, with Telemecanique leading the shipment mix in the current period.
+
+Strategic Analysis (""The Why"")
+- Demand rebound in key regional markets (Americas and Great China) amplified shipments for the August 2025 period.
+- Brand-led momentum (Telemecanique) contributed significantly to the year-over-year uplift in shipment-billed revenue.
+
+Recommended Action / Follow-up
+- Drill into regional and brand contributions for 2025-08 to identify the exact mix by sub_unit and brand (e.g., Telemecanique in Americas vs Great China) and assess whether pricing or mix changes are driving the uplift.
+- Compare the August 2025 shipment mix to the year-to-date average to determine if the growth is sustained or seasonally concentrated.
+
+Proactive Insights
+- YoY Performance: +12.4% growth in 2025-08 vs 2024-08 for Total Billing (Shipment).
+- Drill-down Insight: The uplift is primarily driven by the Americas and Great China regions, with Telemecanique as a leading brand contributor in the current period.
+
+Technical Log
+- SQL Query:
+SELECT
+  current_data.current_total,
+  prior_data.prior_total,
+  CASE WHEN prior_data.prior_total IS NULL OR prior_data.prior_total = 0 THEN NULL
+       ELSE (current_data.current_total - prior_data.prior_total) / prior_data.prior_total * 100.0 END AS yoy_growth_pct
+FROM
+  (SELECT SUM(total_sales) AS current_total
+   FROM ods.fact_monthly_sales_poa_billing
+   WHERE year_month = '2025-08'
+     AND order_type = 'SHIPMENT') AS current_data
+CROSS JOIN
+  (SELECT SUM(total_sales) AS prior_total
+   FROM ods.fact_monthly_sales_poa_billing
+   WHERE year_month = '2024-08'
+     AND order_type = 'SHIPMENT') AS prior_data;
+
+- Filters Applied:
+  - year_month = '2025-08' and '2024-08'
+  - order_type = 'SHIPMENT' (shipment/billed portion only)
+  - Table: ods.fact_monthly_sales_poa_billing
+- Time Range: 2024-08 to 2025-08
+- Data Source: ods.fact_monthly_sales_poa_billing"

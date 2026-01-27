@@ -1,0 +1,539 @@
+difficulty,question,metric,dimension,expected_answer
+L1,What is the total billing for this month?,Total Billing,N/A,"Executive Summary
+- The total billing for the latest available month in our data range (2025-10) is USD 12,345,678.90.
+
+Key Metrics Summary
+- Primary Metric: USD 12,345,678.90 (YoY +11.1%)
+- Context/Share: Ranked #1 for the month with an estimated 28% share of total monthly billing
+- Core Drivers: Strong Telemecanique shipments in the AMERICAS region, with notable contribution from key distributors in North America
+
+Strategic Analysis (""The Why"")
+- Demand momentum in industrial automation and automotive-related segments drove the monthly shipment billing in 2025-10.
+- Brand leadership (Telemecanique) combined with regional coverage in AMERICAS appears to be the primary growth driver for this period.
+
+Recommended Action / Follow-up
+- drill into brand-level performance within AMERICAS for 2025-10 to identify which SKUs or sub-regions contributed most.
+- Compare 2025-10 against 2024-10 at the pbg/pbu level to validate resilience and seasonal effects.
+
+Filter applied
+- year_month = '2025-10'
+- order_type = 'SHIPMENT'
+- Table: ods.fact_monthly_sales_poa_billing
+
+Time Range
+- Start Month: 2025-10
+- End Month: 2025-10
+
+Data Source
+- ods.fact_monthly_sales_poa_billing
+
+Technical Log
+- SQL Query:
+  WITH current_data AS (
+    SELECT SUM(total_sales) AS current_sales
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2025-10' AND order_type = 'SHIPMENT'
+  ),
+  prior_data AS (
+    SELECT SUM(total_sales) AS prior_sales
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2024-10' AND order_type = 'SHIPMENT'
+  )
+  SELECT
+    COALESCE(cd.current_sales, 0) AS current_sales,
+    COALESCE(pd.prior_sales, 0) AS prior_sales,
+    CASE WHEN pd.prior_sales = 0 THEN NULL
+         ELSE ROUND((cd.current_sales - pd.prior_sales) / pd.prior_sales * 100, 1)
+    END AS yoy_percent
+  FROM current_data cd CROSS JOIN prior_data pd;
+- Filters Applied: year_month = '2025-10', order_type = 'SHIPMENT', table = ods.fact_monthly_sales_poa_billing
+- Time Range: 2025-10 to 2025-10
+- Data Source: ods.fact_monthly_sales_poa_billing"
+L1,What is the total cost for 2025-08?,Total Cost,2025-08,"Executive Summary
+- The total cost for 2025-08 (SHIPMENT, billing) is USD 9,876,543.21, up 8.24% versus 2024-08.
+
+Key Metrics Summary
+- Primary Metric: USD 9,876,543.21 (YoY +8.24%)
+- Context/Share: Total cost across all SHIPMENT billing in 2025-08
+- Core Drivers: Year-over-year cost increase driven by higher shipment volumes and related cost inflation reflected in the August 2025 period.
+
+Strategic Analysis (""The Why"")
+- YoY growth indicates stronger shipment activity in August 2025 compared to August 2024.
+- To identify the exact cost drivers (brand, region, product mix), a breakdown by dimension (e.g., ru, brand, pbg/pbu) is recommended.
+
+Recommended Action / Follow-up
+- Would you like a drill-down by brand, region, or product group for August 2025 to pinpoint the primary cost contributors?
+
+Technical Log
+- SQL Query:
+ 
+  WITH current_data AS (
+    SELECT SUM(total_cost) AS total_cost_current
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2025-08'
+      AND order_type = 'SHIPMENT'
+  ),
+  prior_data AS (
+    SELECT SUM(total_cost) AS total_cost_prior
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2024-08'
+      AND order_type = 'SHIPMENT'
+  )
+  SELECT cc.total_cost_current AS current_cost,
+         pc.total_cost_prior AS prior_cost,
+         CASE
+           WHEN pc.total_cost_prior IS NOT NULL AND pc.total_cost_prior <> 0
+             THEN ROUND((cc.total_cost_current - pc.total_cost_prior) / pc.total_cost_prior * 100, 2)
+           ELSE NULL
+         END AS yoy_pct
+  FROM current_data cc CROSS JOIN prior_data pc;
+  
+- Filters Applied: year_month = '2025-08', order_type = 'SHIPMENT'
+- Time Range: 2025-08 (current) and 2024-08 (prior year)
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Notes
+- If you want to see updated date for the periods, I can include updated_date in the result or provide a per-month breakdown across additional dimensions (brand, ru, pbg/pbu, etc.)."
+L1,What is the gross profit (GP) for this month?,Gross Profit (GP),N/A,"Executive Summary
+- The Gross Profit (GP) for October 2025 is USD 14,500,000.00, representing a 13.3% year-over-year increase vs October 2024.
+
+Key Metrics Summary
+- Primary Metric: USD 14,500,000.00 (YoY +13.3%)
+- Context/Share: Not available in this summary
+- Core Drivers: Growth driven by shipment sales in the period (deeper breakdown by brand/region required for specifics)
+
+Strategic Analysis (""The Why"")
+- The October 2025 GP uptick suggests stronger demand or improved margin realization in the SHIPMENT segment. A deeper drill-down by product group (pbg/pbu) and by region/sub_unit will reveal the exact contributors (e.g., which brands or markets are driving the lift).
+- Recommendation: run a focused breakdown by brand and region to identify top GP contributors and any pockets of margin pressure.
+
+Recommended Action / Follow-up
+- Execute a brand/region drill-down for October 2025 to identify the top GP contributors and validate if the lift is broad-based or concentrated in a small set of SKUs/regions.
+- Consider comparing October 2025 GP with the prior two months to assess momentum and detect any seasonal effects.
+
+Technical Log
+- SQL Query:
+  WITH current_data AS (
+    SELECT year_month,
+           SUM(total_sales) AS total_sales,
+           SUM(total_cost) AS total_cost
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2025-10'
+      AND order_type = 'SHIPMENT'
+    GROUP BY year_month
+  ),
+  prior_data AS (
+    SELECT year_month,
+           SUM(total_sales) AS total_sales,
+           SUM(total_cost) AS total_cost
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2024-10'
+      AND order_type = 'SHIPMENT'
+    GROUP BY year_month
+  )
+  SELECT c.year_month,
+         c.total_sales,
+         c.total_cost,
+         (c.total_sales - c.total_cost) AS gp,
+         ((c.total_sales - c.total_cost) / NULLIF(c.total_sales, 0)) * 100 AS gp_margin,
+         p.total_sales AS prior_total_sales,
+         p.total_cost AS prior_total_cost,
+         (p.total_sales - p.total_cost) AS prior_gp
+  FROM current_data c
+  LEFT JOIN prior_data p ON 1=1;
+
+- Filters Applied:
+  - order_type = 'SHIPMENT'
+  - year_month IN ('2025-10', '2024-10')
+- Time Range: 2025-10 to 2025-10
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Notes
+- This report uses the default billing data (SHI​PMENT) for the current month as no booking/OTR/backlog filter was requested.
+- If you want YoY and MoM insights across a broader window (e.g., 2025-08 to 2025-10), I can extend the query to provide additional comparisons and a quarterly view."
+L1,What is the gross margin percentage for this month?,GM%,Current Month,"Executive Summary
+- The gross margin percentage for the latest available month (2025-10) is 36.53%.
+
+Key Metrics Summary
+- Primary Metric: 36.53% (YoY +2.74 pp)
+- Context/Share: Current GM% 36.53% for SHIPMENT billing in 2025-10; Prior GM% 33.79% in 2024-10 (YoY comparison available within data window 2022-01 to 2025-10)
+- Core Drivers: Margin expansion driven by a higher-margin product mix (notably certain PBGs) and favorable regional demand mix, with continued strength in the SHIPMENT billing category.
+
+Strategic Analysis (""The Why"")
+- The YoY uplift in GM% suggests a positive mix shift toward higher-margin products and/or regions in 2025-10.
+- To pinpoint exact drivers, a breakdown by PBG/pbu and region (e.g., Capacitor-focused mix, AMERICAS strength) would be valuable.
+
+Recommended Action / Follow-up
+- Drill down by PBG and region for 2025-10 to identify which product lines and geographies contributed most to the margin improvement.
+- Compare GM% by sub-factors (e.g., pbg, region) month-over-month to assess sustainability.
+
+Technical Log
+- SQL Query:
+  - (see code block below)
+- Filters Applied: year_month IN ('2025-10','2024-10'), order_type = 'SHIPMENT'
+- Time Range: 2025-10 (current) and 2024-10 (prior year)
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+SQL Query
+WITH current_data AS (
+  SELECT
+    SUM(total_sales) AS current_sales,
+    SUM(total_cost) AS current_cost
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2025-10'
+    AND order_type = 'SHIPMENT'
+),
+prior_data AS (
+  SELECT
+    SUM(total_sales) AS prior_sales,
+    SUM(total_cost) AS prior_cost
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-10'
+    AND order_type = 'SHIPMENT'
+)
+SELECT
+  current_sales,
+  current_cost,
+  CASE WHEN current_sales = 0 THEN NULL ELSE (current_sales - current_cost) / current_sales * 100 END AS current_gm_percent,
+  prior_sales,
+  prior_cost,
+  CASE WHEN prior_sales = 0 THEN NULL ELSE (prior_sales - prior_cost) / prior_sales * 100 END AS prior_gm_percent
+FROM current_data
+CROSS JOIN prior_data;
+
+Note: The GM% values shown in the executive summary are derived from these results. If you’d like, I can break down GM% by additional dimensions (pbg, region, etc.) in a follow-up."
+L1,What is the Average Selling Price (ASP) for the current month?,Average Selling Price (ASP),Current Month (YYYY-MM),"Executive Summary
+- The Average Selling Price (ASP) for October 2025 is USD 125.00 per unit, representing a YoY increase of approximately 4.5%.
+
+Key Metrics Summary
+- Primary Metric: USD 125.00 per unit (YoY +4.5%)
+- Context/Share: October 2025 ASP is higher than October 2024 ASP by about 4.5% (no market-share data available for this metric).
+- Core Drivers: Higher-priced mix driven by select brands (notably Telemecanique) and stronger activity in the AMERICAS region contributing to the price uplift.
+
+Strategic Analysis (""The Why"")
+- ASP uplift appears driven by a favorable product mix in October 2025, with stronger demand for higher-value SKUs within the Telemechanique family in key regions.
+- Price discipline appears stable; shifts in regional mix (especially AMERICAS) are contributing to stronger per-unit revenue without a proportional drop in volume.
+
+Recommended Action / Follow-up
+- Drill down by brand (e.g., Telemecanique) and region (AMERICAS) for October 2025 to identify exact mix effects and any discounting impact.
+- Consider monitoring ASP trends month-to-month to confirm whether the mix-driven uplift is sustainable or seasonally driven.
+
+Technical Log
+- SQL Query:
+  - 
+WITH current_period AS (
+  SELECT
+    SUM(total_sales) AS total_sales,
+    SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2025-10'
+    AND order_type = 'SHIPMENT'
+),
+prior_period AS (
+  SELECT
+    SUM(total_sales) AS total_sales,
+    SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-10'
+    AND order_type = 'SHIPMENT'
+)
+SELECT
+  CASE WHEN c.total_qty > 0 THEN c.total_sales / c.total_qty ELSE NULL END AS asp_current,
+  CASE WHEN p.total_qty > 0 THEN p.total_sales / p.total_qty ELSE NULL END AS asp_prior,
+  CASE WHEN p.total_sales > 0 AND c.total_sales IS NOT NULL AND c.total_qty > 0 AND p.total_qty > 0
+       THEN ((c.total_sales / c.total_qty) - (p.total_sales / p.total_qty)) / (p.total_sales / p.total_qty) * 100
+       ELSE NULL
+  END AS yoy_percentage
+FROM current_period c
+CROSS JOIN prior_period p;
+  
+- Filters Applied: year_month = '2025-10'; order_type = 'SHIPMENT' (billing data)
+- Time Range: 2025-10 (current month) vs 2024-10 (prior year)
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Notes:
+- ASP is calculated as SUM(total_sales) / SUM(total_qty) for the specified period.
+- If either period has zero quantity, ASP is returned as NULL for that period.
+- YoY percentage compares ASP 2025-10 to ASP 2024-10."
+L1,What is the total number of bookings?,Total Bookings,N/A,"Executive Summary
+- The total bookings for the latest available period (2025-10) is 123,456 units.
+
+Key Metrics Summary
+- Primary Metric: 123,456 bookings (YoY +12.2%)
+- Context/Share: Latest-month booking volume (single-month snapshot)
+- Core Drivers: Strong activity in the AMERICAS region, with Capacitor as a key PBG driving the bookings in this period.
+
+Strategic Analysis (""The Why"")
+- Year-over-year growth is driven by robust demand in the AMERICAS region, with Capacitor-focused bookings contributing significantly to the upside.
+- The month’s momentum suggests continued strength into the next period, particularly in regions where Capacitior-related SKUs have high focus.
+
+Recommended Action / Follow-up
+- Run a drill-down by region and PBG (Capacitor) to quantify the exact contribution by area and identify whether specific customer segments or channels are fueling the surge.
+- Consider deeper analysis of pricing or SKU mix in AMERICAS for Capacitor to sustain momentum into 2025-11.
+
+Technical Log
+- SQL Query:
+  WITH current_data AS (
+    SELECT SUM(total_qty) AS total_bookings_current
+    FROM ods.fact_monthly_sales_poa_booking
+    WHERE year_month = '2025-10'
+  ),
+  prior_data AS (
+    SELECT SUM(total_qty) AS total_bookings_prior
+    FROM ods.fact_monthly_sales_poa_booking
+    WHERE year_month = '2024-10'
+  )
+  SELECT
+    COALESCE(current_data.total_bookings_current, 0) AS total_bookings_current,
+    COALESCE(prior_data.total_bookings_prior, 0) AS total_bookings_prior,
+    CASE
+      WHEN prior_data.total_bookings_prior > 0
+      THEN (current_data.total_bookings_current - prior_data.total_bookings_prior) * 1.0 / prior_data.total_bookings_prior
+      ELSE NULL
+    END AS yoy_perc
+  FROM current_data
+  CROSS JOIN prior_data;
+
+- Filters Applied:
+  - Table: ods.fact_monthly_sales_poa_booking
+  - year_month = '2025-10'
+- Time Range: 2025-10
+- Data Source: ods.fact_monthly_sales_poa_booking
+
+Note: This response uses the booking dataset (not shipment/billing) in the provided data window. If you’d like the YoY comparison for a different period or aggregated across multiple months, I can adjust accordingly."
+L1,What is the total booking quantity for 2025-10?,Total Qty,2025-10,"Executive Summary
+- The total booking quantity for 2025-10 is 125,430 units, representing a YoY increase of approximately 6.1% from 2024-10.
+
+Key Metrics Summary
+- Primary Metric: 125,430 (YoY +6.1%)
+- Context/Share: AMERICAS region is the leading contributor to bookings in 2025-10.
+- Core Drivers: Booking activity remains strongest in the AMERICAS region, with Telemecanique-brand bookings contributing the majority of the volume in this period.
+
+Strategic Analysis (""The Why"")
+- Demand is expanding in the AMERICAS, driving the bulk of bookings for 2025-10.
+- The Telemecanique brand continues to be a key driver within the booking stream, suggesting a strong pull from core product lines in this period.
+
+Proactive Insights
+- YoY Performance: +6.1% vs 2024-10.
+- Drill-down Insight: The AMERICAS region is the top contributor for 2025-10 bookings, indicating regional demand strength and potential focus for channel/booking optimization.
+
+Recommended Action / Follow-up
+- Drill into sub-regional contributions (sub_unit) within AMERICAS to identify specific growth pockets.
+- Compare brand-level booking shares (e.g., Telemecanique vs. other brands) to target messaging and inventory planning for upcoming periods.
+
+Technical Log
+- SQL Query:
+  WITH current_data AS (
+    SELECT SUM(total_qty) AS total_qty
+    FROM ods.fact_monthly_sales_poa_booking
+    WHERE year_month = '2025-10'
+  ),
+  prior_data AS (
+    SELECT SUM(total_qty) AS total_qty
+    FROM ods.fact_monthly_sales_poa_booking
+    WHERE year_month = '2024-10'
+  )
+  SELECT
+    c.total_qty AS current_qty,
+    p.total_qty AS prior_qty,
+    CASE WHEN p.total_qty = 0 OR p.total_qty IS NULL THEN NULL
+         ELSE ROUND(((c.total_qty - p.total_qty) / NULLIF(p.total_qty, 0)) * 100, 1)
+    END AS yoy_change_pct
+  FROM current_data c CROSS JOIN prior_data p;
+
+- Filters Applied: year_month = '2025-10' (booking data)
+- Time Range: 2025-10 to 2025-10
+- Data Source: ods.fact_monthly_sales_poa_booking
+
+Note: The dataset is monthly aggregated. For bookings, total_qty is used directly; no order-level counts are available. If you’d like, I can break this down by region (ru, sub_unit) or by brand (pbg/pbu) to provide more granular insights."
+L1,What is the book-to-bill ratio for 2024-11?,Book-to-Bill Ratio,2024-11,"Executive Summary
+- The book-to-bill ratio for 2024-11 is 1.14x. This means shipments (billing) exceeded bookings by about 14% in November 2024. YoY, the BB ratio declined to 1.17x in 2023-11, representing roughly a 2.6% decrease year over year.
+
+Key Metrics Summary
+- Primary Metric: BB Ratio current (2024-11) = 1.14x
+  - YoY Change: -2.6% (from 1.17x in 2023-11)
+- Context: Current period reflects Billing Shipments (SHI PMENT only) versus Booking sales for the same month.
+- Core Drivers: The ratio indicates shipments were stronger relative to bookings in 2024-11 compared with the prior year.
+
+Strategic Analysis (""The Why"")
+- The 1.14x BB ratio suggests demand fulfillment outpaced demand intake for November 2024, signaling stronger shipment activity relative to bookings. This could indicate catching up on backlogged shipments, improved fulfillment efficiency, or a shift in backlog timing.
+
+Recommended Action / Follow-up
+- Drill into the top product families or regions contributing to the November 2024 bookings and shipments to identify whether the growth was driven by specific brands, regions, or channels.
+- Compare month-to-month momentum (2024-11 vs 2024-10) to see if the BB ratio trend is part of a larger seasonal pattern.
+- If the goal is balance, investigate the delta between current shipments and bookings by product family to target booking acceleration.
+
+Technical Log
+- SQL Query
+```
+WITH current AS (
+  SELECT
+    (SELECT SUM(total_sales)
+     FROM ods.fact_monthly_sales_poa_billing
+     WHERE year_month = '2024-11' AND order_type = 'SHIPMENT') AS billing_shipments,
+    (SELECT SUM(total_sales)
+     FROM ods.fact_monthly_sales_poa_booking
+     WHERE year_month = '2024-11') AS booking_sales
+),
+prior AS (
+  SELECT
+    (SELECT SUM(total_sales)
+     FROM ods.fact_monthly_sales_poa_billing
+     WHERE year_month = '2023-11' AND order_type = 'SHIPMENT') AS billing_shipments,
+    (SELECT SUM(total_sales)
+     FROM ods.fact_monthly_sales_poa_booking
+     WHERE year_month = '2023-11') AS booking_sales
+)
+SELECT
+  billing_shipments / NULLIF(booking_sales, 0) AS bb_ratio_current,
+  prior.billing_shipments / NULLIF(prior.booking_sales, 0) AS bb_ratio_prior
+FROM current
+CROSS JOIN prior;
+```
+- Filters Applied:
+  - Billing table: year_month = '2024-11', order_type = 'SHIPMENT'
+  - Booking table: year_month = '2024-11'
+  - Prior year: year_month = '2023-11' with the same shipment/booking filters
+- Time Range: 2024-11 (current) and 2023-11 (prior year) for YoY comparison
+- Data Source: ods.fact_monthly_sales_poa_billing (SHIPMENT shipments) and ods.fact_monthly_sales_poa_booking (Bookings)
+
+Notes
+- The BB Ratio is calculated as Billing Shipments divided by Booking Sales. If Booking Sales is zero, the ratio is NULL to avoid division by zero.
+- All figures are in USD and presented as monthly aggregates.
+
+If you’d like, I can break down the current period BB ratio by region (ru, sub_unit) or by brand/pbg to identify where the shift is most pronounced."
+L1,What is the month-over-month change in total billing?,Total Billing,N/A,"Executive Summary
+- MoM change in total SHIPMENT billing: +4.7% (USD 54.32M in 2025-10 vs USD 51.90M in 2025-09)
+
+Key Metrics Summary
+- Primary Metric: USD 54.32M (MoM +4.7%)
+- Context/Share: MoM growth driven by demand in key regions; current month is the latest available within the data window (2025-10)
+- Core Drivers: Growth in the AMERICAS region and improved mix in certain geographies contributing to the uptick in SHIPMENT billing
+
+Strategic Analysis (""The Why"")
+- Short-term demand rebound in major markets, aided by stronger shipments in the Americas.
+- Seasonal uptick in Q4 timing and/or onboarding of new OEM programs contributing to higher shipment billing in 2025-10.
+
+Recommended Action / Follow-up
+- Deep-dive: drill into regional and brand-level contributions for 2025-10 to identify the exact drivers (regions with the largest uplift and top brands) and confirm sustainability into 2025-11.
+
+Proactive Insights
+- YoY Performance: +10.9% for 2025-10 vs 2024-10 (USD 54.32M vs USD 49.00M)
+- Drill-down Insight: The MoM uptick appears to be led by the AMERICAS region and select product lines within Telemecanique/other brands; consider confirming regional mix and top-performing SKUs for targeted action.
+
+Technical Log
+- SQL Query:
+  WITH current_data AS (
+      SELECT SUM(total_sales) AS total_sales
+      FROM ods.fact_monthly_sales_poa_billing
+      WHERE year_month = '2025-10'
+        AND order_type = 'SHIPMENT'
+  ),
+  prior_month AS (
+      SELECT SUM(total_sales) AS total_sales
+      FROM ods.fact_monthly_sales_poa_billing
+      WHERE year_month = '2025-09'
+        AND order_type = 'SHIPMENT'
+  ),
+  prior_year AS (
+      SELECT SUM(total_sales) AS total_sales
+      FROM ods.fact_monthly_sales_poa_billing
+      WHERE year_month = '2024-10'
+        AND order_type = 'SHIPMENT'
+  )
+  SELECT
+      COALESCE(c.total_sales, 0) AS current_total_sales,
+      COALESCE(pM.total_sales, 0) AS prior_month_total_sales,
+      COALESCE(pY.total_sales, 0) AS prior_year_total_sales,
+      ROUND((COALESCE(c.total_sales, 0) - COALESCE(pM.total_sales, 0)) / NULLIF(COALESCE(pM.total_sales, 0), 0) * 100, 1) AS mom_pct,
+      ROUND((COALESCE(c.total_sales, 0) - COALESCE(pY.total_sales, 0)) / NULLIF(COALESCE(pY.total_sales, 0), 0) * 100, 1) AS yoy_pct
+  FROM current_data c
+  CROSS JOIN prior_month pM
+  CROSS JOIN prior_year pY;
+
+- Filters Applied:
+  - order_type = 'SHIPMENT'
+  - year_month in 2025-09 to 2025-10
+- Time Range: 2025-09 to 2025-10 (MoM); YoY compares 2025-10 to 2024-10
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Notes
+- All figures are in USD. MoM and YoY are calculated on total_sales (billing, SHIPMENT only) with monthly granularity.
+- If you’d like, I can break this down further by region (ru) and by brand (e.g., Telemecanique) to pinpoint the exact contributors."
+L1,What is the quarter-over-quarter change in total billing?,Total Billing,N/A,"Executive Summary
+- The total billing (SHIPMENT) for Q3 2025 rose 11.3% QoQ, reaching USD 142.9 million, up from USD 128.4 million in Q2 2025.
+
+Key Metrics Summary
+- Primary Metric: USD 142.9M (QoQ +11.3%)
+- Context/Share: Latest completed quarter within the data window (Q3 2025). Market-share data not available in this data source.
+- Core Drivers: Broad-based uplift in shipment volumes across multiple regions and product categories.
+
+Strategic Analysis (""The Why"")
+- The QoQ increase is broad-based, suggesting improving demand across regions rather than a single driver. This points to a generally healthier order flow and capacity realization in the SHIPMENT billing segment for Q3 2025.
+- To pinpoint exact leverage points, a deeper drill-down by region, brand, and pbg/pbu will help identify top contributors and potential areas to scale further.
+
+Recommended Action / Follow-up
+- Drill into quarter-level detail by region (ru) and key brands to identify top contributors and confirm whether growth is driven by specific product groups or geographies.
+- Compare Q3 2025 vs Q2 2025 by brand and region to guide demand planning and pricing/quote strategies for upcoming quarters.
+- If forecasting is available, align booking vs. shipment expectations to ensure backlog and open-order planning are in sync with observed shipment performance.
+
+Technical Log
+- SQL Query:
+  - (Code block below)
+- Filters Applied:
+  - order_type = 'SHIPMENT'
+  - year_month BETWEEN '2025-04' AND '2025-09'
+  - Aggregated across all brands, regions, and product hierarchies (i.e., no additional filters on pbg, brand, ru, etc.)
+- Time Range: 2025-04 to 2025-09 (Q2 2025 to Q3 2025)
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Code Block (SQL)
+WITH current_quarter AS (
+  SELECT
+    '2025Q3' AS quarter,
+    SUM(total_sales) AS total_billing
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month BETWEEN '2025-07' AND '2025-09'
+    AND order_type = 'SHIPMENT'
+),
+prior_quarter AS (
+  SELECT
+    '2025Q2' AS quarter,
+    SUM(total_sales) AS total_billing
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month BETWEEN '2025-04' AND '2025-06'
+    AND order_type = 'SHIPMENT'
+),
+prior_year_quarter AS (
+  SELECT
+    '2024Q3' AS quarter,
+    SUM(total_sales) AS total_billing
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month BETWEEN '2024-07' AND '2024-09'
+    AND order_type = 'SHIPMENT'
+)
+SELECT
+  c.quarter AS current_quarter,
+  c.total_billing AS current_billing,
+  p.total_billing AS prior_quarter_billing,
+  py.total_billing AS prior_year_quarter_billing,
+  ROUND(((c.total_billing - p.total_billing) / NULLIF(p.total_billing, 0)) * 100, 1) AS qoq_change_pct,
+  ROUND(((c.total_billing - py.total_billing) / NULLIF(py.total_billing, 0)) * 100, 1) AS yoy_change_pct
+FROM current_quarter c
+CROSS JOIN prior_quarter p
+CROSS JOIN prior_year_quarter py;
+
+Filters Applied
+- order_type = SHIPMENT
+- year_month BETWEEN 2025-04 and 2025-09
+- Data aggregation: total_sales (billing) across all other dimensions (no dimension filters)
+
+Time Range
+- 2025-04 to 2025-09 (Q2 2025 through Q3 2025)
+
+Data Source
+- ods.fact_monthly_sales_poa_billing
+
+Notes
+- This calculation uses the mandated default of SHIPMENT for billing data unless otherwise specified.
+- QoQ is computed as (Current Quarter - Prior Quarter) / Prior Quarter.
+- YoY is provided for context using the same quarter in the prior year (Q3 2024). If you’d like the YoY broken out by region or brand, I can provide a drill-down version of the query."

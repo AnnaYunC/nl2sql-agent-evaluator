@@ -44,7 +44,7 @@ def generate_questions(client_openai, model, schema_context, prompt_dir, metrics
                     model=model,
                     response_format={"type": "json_object"},
                     messages=[
-                        {"role": "system", "content": f"{prompt}\n\nSCHEMA:\n{schema_context}"},
+                        {"role": "system", "content": f"{prompt}\n\nSCHEMA:\n{schema_context}\n\nDATE_CONSTRAINT: The available sales data range is only from '2022-01' to '2025-10'. Do NOT generate questions outside this range."},
                         {"role": "user", "content": f"Generate one QA for: {intent}"}
                     ]
                 )

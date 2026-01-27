@@ -1,0 +1,6 @@
+difficulty,question,metric,dimension
+L1,What is the total billing for 2023-07?,Total Billing,N/A
+L2,What is the total billing for Great China in 2023-01?,total_sales,ru='GREAT CHINA'
+L3,Who are the top 5 Product Business Groups (PBG) by total billing in 2024-11?,total_sales,PBG
+L4,"Calculate the Book-to-Bill ratio for Europe in 2024-11, using the total Booking value from the booking table divided by the total Billing value from the billing table for that month.",Book-to-Bill Ratio,2024-11
+L5,"What was the Sales YoY growth for Total Billing in 2025-08, and how did it compare to 2024-08?",Sales YoY,year_month

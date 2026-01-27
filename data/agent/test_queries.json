@@ -1,18 +1,18 @@
 [
   {
-    "question": "What is the total billing for Great China in 2023-01?",
-    "complexity": "L2"
+    "question": "Show me the total bookings for 2024-03.",
+    "complexity": "L1"
   },
   {
-    "question": "What is the total cost for Brand YAGEO in 2024-12?",
-    "complexity": "L2"
+    "question": "What is the book-to-bill ratio for 2024-04?",
+    "complexity": "L1"
   },
   {
-    "question": "Analyze gross profit (GP) for ru='GREAT CHINA' in 2023-01.",
-    "complexity": "L2"
+    "question": "What is the month-over-month change in total billing for 2023-05?",
+    "complexity": "L1"
   },
   {
-    "question": "What is the Average Selling Price (ASP) for Brand 'YAGEO' in 2023-01?",
-    "complexity": "L2"
+    "question": "What is the QoQ change in total billing for 2024-04?",
+    "complexity": "L1"
   }
 ]

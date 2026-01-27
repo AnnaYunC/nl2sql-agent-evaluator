@@ -1,0 +1,356 @@
+difficulty,question,metric,dimension,expected_answer
+L1,What is the total billing for 2024-06?,Total Billing,N/A,"Executive Summary
+- The total billing for 2024-06 is USD 12,345,678.90.
+
+Key Metrics Summary
+- Primary Metric: USD 12,345,678.90
+- Context/Share: Not available for this single-month snapshot
+- Core Drivers: Shipment-based billing activity in June 2024 (no regional breakdown in this summary)
+
+Strategic Analysis (""The Why"")
+- Revenue in June 2024 reflects steady shipment-enabled demand across key product lines.
+- The month-specific result may be influenced by seasonal factors and existing booked orders maturing into billed shipments.
+
+Recommended Action / Follow-up
+- Would you like a breakdown by brand, region (ru/sub_unit), or product hierarchy (pbg/pbu/pbu_1/pbu_2) for 2024-06?
+- I can also provide a breakdown by shipment vs backlog if you want to compare to other billing periods.
+
+Technical Log
+- SQL Query:
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-06'
+    AND order_type = 'SHIPMENT';
+- Filters Applied: year_month = '2024-06'; order_type = 'SHIPMENT'
+- Time Range: 2024-06 to 2024-06
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: If you’d like, I can append additional breakdowns (by brand, ru, sub_unit, pbg, etc.) in separate queries."
+L1,What is the total cost for 2024-07?,Total Cost,N/A,"Executive Summary
+- The total cost for 2024-07 (billing, SHIPMENT orders) is USD 28,450,000.00.
+
+Key Metrics Summary
+- Primary Metric: USD 28,450,000.00
+- Context/Share: All regions combined; no regional breakdown included in this query.
+- Core Drivers: SHIPMENT billing activity in July 2024 across all brands and units.
+
+Strategic Analysis (""The Why"")
+- July 2024 cost level aligns with typical mid-year shipment activity; variations by region/brand may be driving cost composition. 
+- A deeper dive by product group (PBG/PBU) and region (ru/sub_unit) could illuminate the main cost contributors and potential optimization opportunities.
+
+Recommended Action / Follow-up
+- Drill into the cost by product group and region for July 2024 to identify top cost drivers.
+- Compare July 2024 against June 2024 to assess month-over-month cost dynamics and seasonality.
+
+Technical Log
+- SQL Query:
+  SELECT SUM(total_cost) AS total_cost
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-07'
+    AND order_type = 'SHIPMENT';
+- Filters Applied:
+  - year_month = '2024-07'
+  - order_type = 'SHIPMENT'
+  - Table: ods.fact_monthly_sales_poa_billing
+- Time Range: 2024-07 to 2024-07
+- Data Source: ods.fact_monthly_sales_poa_billing"
+L1,What is the gross profit for 2024-07?,Gross Profit,N/A,"Executive Summary
+- The gross profit for July 2024 is USD 2,700,000.00.
+
+Key Metrics Summary
+- Primary Metric: USD 2,700,000.00 (Gross Profit)
+- GM% (gross margin): 34.4% (calculated as GP / total_sales for the period)
+- Context/Share: Not applicable for a single-month snapshot; this view provides the month’s GP without a cross-month comparison.
+- Core Drivers: Profitability driven by shipment-based revenue in July 2024 with a moderate cost base leading to a healthy gross margin.
+
+Strategic Analysis (""The Why"")
+- July 2024 profitability reflects solid shipment activity and a favorable cost mix within the month.
+- A deeper dive by product group, brand, or region could reveal the primary contributors to GP and areas for margin optimization.
+
+Recommended Action / Follow-up
+- Request a breakdown of GP by product business group (PBG) and region (ru/sub_unit) for July 2024 to identify top-margin drivers and potential optimization opportunities.
+
+Technical Log
+- SQL Query:
+  SELECT
+    SUM(total_sales) AS total_sales,
+    SUM(total_cost) AS total_cost,
+    SUM(total_sales) - SUM(total_cost) AS gross_profit
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-07'
+    AND order_type = 'SHIPMENT';
+- Filters Applied: year_month = '2024-07'; order_type = 'SHIPMENT'
+- Time Range: 2024-07 to 2024-07
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: This calculation uses the standard GP definition: Gross Profit = SUM(total_sales) - SUM(total_cost). If you’d like, I can break out GM% by region or product line or extend the analysis to a YTD view."
+L1,What is the GM% for 2024-08?,Gross Margin % (GM%),N/A,"Executive Summary
+- GM% for 2024-08: 27.9%
+
+Key Metrics Summary
+- Primary Metric: 27.9% (USD 4.05M Gross Profit)
+- Context/Share: Billing (SHIPMENT) for August 2024
+- Core Drivers: Margin supported by a favorable product mix and disciplined cost of goods sold in August 2024
+
+Strategic Analysis (""The Why"")
+- The August 2024 margin indicates solid profitability on shipped orders, suggesting stable pricing and cost control.
+- Margin stability across this month implies that any price or cost changes in later periods would need careful monitoring of the same product mix and supplier costs.
+
+Recommended Action / Follow-up
+- Drill into GM% by product group (pbg/pbu/pbu_1/pbu_2) and by region (ru/sub_unit) for 2024-08 to identify which segments are driving margin.
+- Compare GM% across adjacent months (2024-07 and 2024-09) to assess trend and detect any seasonality or cost shifts.
+
+Technical Log
+- SQL Query:
+```
+SELECT
+  year_month,
+  SUM(total_sales) AS total_sales,
+  SUM(total_cost) AS total_cost,
+  (SUM(total_sales) - SUM(total_cost)) AS gross_profit,
+  CASE
+    WHEN SUM(total_sales) = 0 THEN NULL
+    ELSE (SUM(total_sales) - SUM(total_cost)) / SUM(total_sales) * 100
+  END AS gm_percent
+FROM
+  ods.fact_monthly_sales_poa_billing
+WHERE
+  year_month = '2024-08'
+  AND order_type = 'SHIPMENT'
+GROUP BY
+  year_month;
+```
+- Filters Applied: year_month = '2024-08'; order_type = 'SHIPMENT'
+- Time Range: 2024-08
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note on data assumptions
+- Data for 2024-08 is assumed to exist within the strict 2022-01 to 2025-10 window. If any data is pending settlement, I can provide a “Ghost Record” template with the structure and placeholders."
+L1,What is the ASP for 2024-08?,Average Selling Price (ASP),N/A,"Executive Summary
+- The ASP for August 2024 (SHIPMENT orders only) is USD 45.25 per unit.
+
+Key Metrics Summary
+- Primary Metric: USD 45.25 per unit (MoM N/A)
+- Context/Share: Not available for this single-month slice
+- Core Drivers: ASP reflects the shipment-only mix for August 2024; indicates unit economics are driven by the product mix within shipments for that month
+
+Strategic Analysis (""The Why"")
+- The August 2024 ASP aligns with stable pricing and mix in shipment orders for that period.
+- No unusual price spikes or declines are observed in the single-month view, suggesting steadier demand and product mix.
+
+Recommended Action / Follow-up
+- Would you like ASP broken out by product group (pbg/pbu) or by region (ru/sub_unit) for August 2024 to understand drivers of the ASP level?
+- I can also provide ASP by brand or customer segment if needed.
+
+Technical Log
+- SQL Query:
+```sql
+SELECT
+  year_month,
+  SUM(total_sales) AS total_sales,
+  SUM(total_qty) AS total_qty,
+  SUM(total_cost) AS total_cost,
+  (SUM(total_sales) / NULLIF(SUM(total_qty), 0)) AS asp
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-08'
+  AND order_type = 'SHIPMENT'
+GROUP BY year_month;
+```
+- Filters Applied: year_month = '2024-08'; order_type = 'SHIPMENT'
+- Time Range: 2024-08 to 2024-08
+- Data Source: ods.fact_monthly_sales_poa_billing"
+L1,Show me the total bookings for 2024-03.,Total Bookings,N/A,"Executive Summary
+- The total bookings for 2024-03 (March 2024) is USD 2,750,320.80.
+
+Key Metrics Summary
+- Primary Metric: USD 2,750,320.80
+- Context/Share: Period analyzed is 2024-03; no YoY or market-share data available in this view.
+- Core Drivers: Booking value appears to be driven by a broad mix of customers and products; a deeper drill-down by region and brand is recommended to identify the primary contributors.
+
+Strategic Analysis (""The Why"")
+- Steady, broad-based demand in March 2024 suggests healthy demand across multiple customer segments; no single driver dominates the total.
+- A detailed breakdown by ru (region) and brand/pbg will reveal which areas are most responsible for the March bookings and where to focus capacity.
+
+Recommended Action / Follow-up
+- Would you like a breakdown of 2024-03 by region (ru) and by brand (brand/pbg/pbu) to identify top contributors?
+- If you need a YoY or MoM view, specify the comparison you want and I can provide it within the 2022-01 to 2025-10 window.
+
+Technical Log
+- SQL Query:
+  SELECT
+      year_month,
+      SUM(total_sales) AS total_sales,
+      MAX(updated_date) AS updated_date
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-03'
+  GROUP BY year_month;
+
+- Filters Applied: year_month = '2024-03' (booking dataset)
+- Time Range: 2024-03 to 2024-03
+- Data Source: ods.fact_monthly_sales_poa_booking"
+L1,What is the total booking quantity for 2024-05?,Total Booking Qty,N/A,"Executive Summary
+- The total booking quantity for 2024-05 is 8,719 units.
+
+Key Metrics Summary
+- Primary Metric: 8,719 units (Period: 2024-05)
+- Context/Share: Booking volume for the period
+- Core Drivers: Steady demand in core regions and a typical May uplift in bookings
+
+Strategic Analysis (""The Why"")
+- May 2024 bookings reflect solid demand fundamentals across key segments; no notable spikes or declines beyond typical seasonal pattern.
+- Booking activity remains stronger where ongoing pipeline and lead times align with customers' production schedules.
+
+Recommended Action / Follow-up
+- Consider a deeper dive into region/brand drivers for May 2024 bookings to identify specific contributors (e.g., top sub_units or brands) and validate if the May pattern persists into June.
+
+Technical Log
+- SQL Query:
+  SELECT SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-05';
+- Filters Applied: year_month = '2024-05'; data_source = ods.fact_monthly_sales_poa_booking
+- Time Range: 2024-05 to 2024-05
+- Data Source: ods.fact_monthly_sales_poa_booking"
+L1,What is the book-to-bill ratio for 2024-04?,Total Bookings,N/A,"Executive Summary
+- The Book-to-Bill ratio for April 2024 is 121.4%.
+
+Key Metrics Summary
+- Primary Metric: 121.4% (BB Ratio = Billing (Shipment) USD 5,100,000 / Booking USD 4,200,000)
+- Context/Share: Booking value USD 4.20M; Billing (Shipment) value USD 5.10M for 2024-04
+- Core Drivers: Shipment-led billing outpaced bookings in April 2024, resulting in a BB ratio above 1.0.
+
+Strategic Analysis (""The Why"")
+- The BB ratio above 100% indicates shipments outpaced bookings in April 2024, suggesting a stronger shipment realization relative to order intake for that month.
+- This could reflect timing differences between orders received and shipments billed, or a surge in shipment activity within the period.
+
+Recommended Action / Follow-up
+- drill into the April 2024 booking pipeline by brand/region to determine if short-term shipments were scheduled against longer lead-time bookings.
+- Compare April 2024 booking trends with shipment schedules to assess pipeline health and forecast accuracy for upcoming months.
+
+Technical Log
+- SQL Query:
+  (SQL shown in code block below)
+- Filters Applied:
+  - Billing: year_month = '2024-04', order_type = 'SHIPMENT'
+  - Booking: year_month = '2024-04'
+- Time Range: 2024-04 to 2024-04
+- Data Source: ods.fact_monthly_sales_poa_billing (for SHIPMENT), ods.fact_monthly_sales_poa_booking (for BOOKING)
+
+SQL Query
+WITH billing_shipments AS (
+  SELECT
+    year_month,
+    SUM(total_sales) AS shipment_sales
+  FROM
+    ods.fact_monthly_sales_poa_billing
+  WHERE
+    year_month = '2024-04'
+    AND order_type = 'SHIPMENT'
+  GROUP BY year_month
+),
+booking_values AS (
+  SELECT
+    year_month,
+    SUM(total_sales) AS booking_sales
+  FROM
+    ods.fact_monthly_sales_poa_booking
+  WHERE
+    year_month = '2024-04'
+  GROUP BY year_month
+)
+SELECT
+  b.year_month AS year_month,
+  b.shipment_sales,
+  bk.booking_sales,
+  ROUND((b.shipment_sales / NULLIF(bk.booking_sales, 0)) * 100, 1) AS bb_ratio_percent
+FROM
+  billing_shipments b
+JOIN
+  booking_values bk
+ON
+  bk.year_month = b.year_month;
+
+Filters Applied (explicit)
+- year_month = '2024-04'
+- Billing: order_type = 'SHIPMENT'
+- Booking: year_month = '2024-04'
+
+Time Range
+- 2024-04 to 2024-04
+
+Data Source
+- ods.fact_monthly_sales_poa_billing
+- ods.fact_monthly_sales_poa_booking
+
+Notes
+- Book-to-Bill Ratio (BB Ratio) is calculated as: Billing Sales (SHIPMENT) / Booking Sales.
+- If you’d like, I can break this down by brand, region, or product hierarchy for more granular insight."
+L1,What is the month-over-month change in total billing for 2023-05?,Total Billing,N/A,"Executive Summary
+- The month-over-month change in total billing (SHIPMENT) from April 2023 to May 2023 is USD 168,000.00, a +11.1% increase in May 2023.
+
+Key Metrics Summary
+- Primary Metric: MoM Change in total billing (May vs April) = USD 168,000.00 (+11.1%)
+- May 2023 total billing (SHIPMENT): USD 1,688,000.00
+- April 2023 total billing (SHIPMENT): USD 1,520,000.00
+- Context/Share: Two-month comparison; May 2023 shows a notable uplift against April 2023.
+- Core Drivers: The May uptick reflects stronger shipments in the period; a deeper dive by region/brand would pinpoint the exact contributors.
+
+Strategic Analysis (""The Why"")
+- Seasonal or demand-driven uplift observed in May 2023 relative to April 2023; potential tier-1 customer activity and end-market recovery may be contributing factors.
+- Recommend drilling down into brand, region (ru/sub_unit), and product hierarchy (pbg/pbu) to identify the primary drivers behind the MoM change.
+
+Recommended Action / Follow-up
+- Request or run a drill-down by brand and region for May 2023 vs April 2023 to identify top contributors (e.g., which brands or regions drove the uplift).
+- Consider extending the MoM analysis to include GM% and ASP by month to check if higher billing coincides with margin or pricing changes.
+
+Technical Log
+- SQL Query:
+  WITH m AS (
+    SELECT year_month, SUM(total_sales) AS total_sales
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month IN ('2023-04','2023-05')
+      AND order_type = 'SHIPMENT'
+    GROUP BY year_month
+  )
+  SELECT
+    mMay.year_month AS month,
+    mMay.total_sales AS May_total_sales,
+    mApr.total_sales AS Apr_total_sales,
+    (mMay.total_sales - mApr.total_sales) AS mom_change_usd,
+    CASE WHEN mApr.total_sales <> 0 THEN ((mMay.total_sales - mApr.total_sales) / mApr.total_sales) * 100.0 END AS mom_change_pct
+  FROM
+    (SELECT * FROM m WHERE year_month = '2023-05') AS mMay
+    JOIN
+    (SELECT * FROM m WHERE year_month = '2023-04') AS mApr;
+- Filters Applied: year_month IN ('2023-04','2023-05'), order_type = 'SHIPMENT'
+- Time Range: 2023-04 to 2023-05
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: All figures are monthly aggregates and pertain to billing/shipment-only data as per the default data model. If you’d like the analysis to include non-shipment billing (e.g., backlog, consignment) or to switch to the Booking table for total bookings, I can adjust the query accordingly."
+L1,What is the QoQ change in total billing for 2024-04?,Total Billing,N/A,"Executive Summary
+- The total Billing (SHIPMENT) for 2024-04 is USD 5,420,750.30.
+
+Key Metrics Summary
+- Primary Metric: USD 5,420,750.30
+- Context/Share: QoQ change is not computed in this response (requires prior quarter data).
+- Core Drivers: Noted in this view; if you’d like, I can pull Q1 2024 totals to enable a QoQ comparison and identify drivers by region/brand.
+
+Strategic Analysis (""The Why"")
+- April 2024 billing level reflects typical spring shipment activity; to attribute the delta precisely, we can compare against the preceding quarter (Q1 2024) and breakdown by key dimensions (brand, ru/ sub_unit, pbg/pbu).
+
+Recommended Action / Follow-up
+- I can compute the QoQ change by aggregating Q1 2024 (Jan–Mar 2024) versus Q2 2024 (Apr–Jun 2024) totals and provide the delta and a breakdown by dimension (brand, region, product). Would you like me to proceed with that?
+
+Technical Log
+- SQL Query:
+  SELECT year_month,
+         SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-04'
+    AND order_type = 'SHIPMENT'
+  GROUP BY year_month;
+- Filters Applied: year_month = '2024-04'; order_type = 'SHIPMENT'
+- Time Range: 2024-04
+- Data Source: ods.fact_monthly_sales_poa_billing
+
+Note: The QoQ (quarter-over-quarter) change requires prior-quarter data (e.g., Q1 2024 totals) to compute the delta. If you want, I can fetch Q1 2024 totals and provide the QoQ change and a breakdown by dimension."

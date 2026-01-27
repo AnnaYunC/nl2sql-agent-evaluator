@@ -73,8 +73,8 @@ Use these when user asks about OEM/EMS/G7 performance.
 - updated_date — data last updated date (**Mandatory in output**)
 
 #### Booking Table (ods.fact_monthly_sales_poa_booking)
-- total_sales — total undeliver sales amount (Booking Value)
-- total_qty — total quantity sold (Booking Volume)
+- total_sales — total undeliver sales amount (Booking Value). **DEFAULT for "Bookings", "Booking sales", or "Order received"**.
+- total_qty — total quantity sold (Booking Volume). Use ONLY if "quantity", "qty", or "volume" is mentioned.
 - updated_date — data last updated date (**Mandatory in output**)
 
 #### General Rules & Limitations
