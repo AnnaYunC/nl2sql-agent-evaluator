@@ -1,0 +1,292 @@
+"difficulty","question","metric","dimension","expected_answer"
+"L1","What is the POA BILLED for 2024-11?","POA BILLED","N/A","### POA Billed (2024-11)
+**Answer**: USD 1,234,567.89
+
+**Scope / Confidence**
+- Includes SHIPMENT billing data for 2024-11
+- **Data status**: Month-end closed; Data last updated 2024-12-02
+
+**Context (optional)**
+- Snapshot of POA billed amount for November 2024. No YoY/MoM comparison provided unless requested.
+
+[Would you like this broken out by region or brand?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_sales) AS poa_billed, MAX(updated_date) AS updated_date
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-11'
+    AND order_type = 'SHIPMENT';
+
+- **Filters Applied**: year_month = '2024-11'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-11 to 2024-11
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L1","What is the POA BILLED Qty for 2024-12?","POA BILLED Qty","N/A","### POA BILLED Qty (2024-12)
+**Answer**: 134,567 Qty
+
+**Scope / Confidence**
+- Includes all regions, brands, and customers
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- POA BILLED Qty for December 2024 from the Billing dataset (SHIPMENT only)
+
+Would you like a breakdown by region (ru), brand, or a YoY comparison?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT
+    SUM(total_qty) AS billed_qty,
+    MAX(updated_date) AS last_updated
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-12'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2024-12'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L1","What is the POA M/M Growth % for 2024-12?","POA M/M Growth %","N/A","### POA M/M Growth % (2024-12)
+**Answer**: 19.50% (MoM: USD 780,000 | 19.50%)
+
+**Scope / Confidence**
+- Includes all customers; booking totals only
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- December 2024 Booking momentum increased vs November 2024.
+
+[Would you like a breakdown by region or product category?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+WITH current AS (
+  SELECT SUM(total_sales) AS current_sales
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-12'
+),
+prior AS (
+  SELECT SUM(total_sales) AS prior_sales
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-11'
+)
+SELECT
+  current.current_sales AS current_sales,
+  prior.prior_sales AS prior_sales,
+  (current.current_sales - prior.prior_sales) AS delta,
+  ((current.current_sales - prior.prior_sales) / NULLIF(prior.prior_sales, 0)) * 100 AS growth_pct
+FROM current CROSS JOIN prior;
+```
+- **Filters Applied**: year_month IN ('2024-11', '2024-12')
+- **Time Range**: 2024-11 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L1","What was the POA QoQ Growth % for Q2 2024?","POA QoQ Growth %","N/A","### POA QoQ Growth % (Q2 2024)
+**Answer**: 7.02% (QoQ: USD 2,600,000 | 7.02%)
+
+**Scope / Confidence**
+- Includes all POA bookings for Q2 2024 vs Q1 2024; no breakdown by brand or region
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Booking activity rose modestly quarter-over-quarter, driven by stronger demand in Apr–Jun 2024.
+
+Would you like a breakdown by region or customer segment?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+WITH Current_Period AS (
+  SELECT SUM(total_sales) AS current_booking
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month IN ('2024-04','2024-05','2024-06')
+),
+Baseline_Period AS (
+  SELECT SUM(total_sales) AS prior_booking
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month IN ('2024-01','2024-02','2024-03')
+)
+SELECT
+  Current_Period.current_booking,
+  Baseline_Period.prior_booking,
+  (Current_Period.current_booking - Baseline_Period.prior_booking) AS delta_booking,
+  (CASE WHEN Baseline_Period.prior_booking = 0 THEN NULL ELSE (Current_Period.current_booking - Baseline_Period.prior_booking) / Baseline_Period.prior_booking * 100 END) AS growth_pct
+FROM Current_Period CROSS JOIN Baseline_Period;
+
+- **Filters Applied**: year_month IN ('2024-01','2024-02','2024-03','2024-04','2024-05','2024-06')
+- **Time Range**: 2024-01 to 2024-06
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L1","What is the POA Y/Y Growth % for 2024-12?","POA Y/Y Growth %","N/A","### POA YoY Growth % (2024-12)
+**Answer**: USD 7,250,000.00 (YoY: +350,000.00 | +5.07%)
+
+**Scope / Confidence**
+- Includes all POA bookings (Booking Value) for December 2024, aggregated across all brands and units
+- Data is monthly; no breakdown by product or region in this snapshot
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- December 2024 POA bookings show a modest year-over-year increase compared with December 2023
+
+[Would you like a breakdown by region, brand, or customer segment?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  WITH current AS (
+      SELECT SUM(total_sales) AS current_sales
+      FROM ods.fact_monthly_sales_poa_booking
+      WHERE year_month = '2024-12'
+  ),
+  prior AS (
+      SELECT SUM(total_sales) AS prior_sales
+      FROM ods.fact_monthly_sales_poa_booking
+      WHERE year_month = '2023-12'
+  )
+  SELECT
+      c.current_sales,
+      p.prior_sales,
+      (c.current_sales - p.prior_sales) AS delta,
+      (c.current_sales - p.prior_sales) / NULLIF(p.prior_sales, 0) AS growth_rate
+  FROM current c CROSS JOIN prior p;
+
+- **Filters Applied**: year_month in ('2024-12', '2023-12')
+- **Time Range**: 2023-12 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L1","What were the total sales in August 2024?","total_sales","N/A","### Total Sales (August 2024)
+**Answer**: USD 6,482,317.89
+
+**Scope / Confidence**
+- Single-period total across all brands and regions (no breakdown)
+- **Data status**: Month-end closed; data last updated 2024-09-03
+
+**Context (optional)**
+- August 2024 total billed revenue (SHIPMENT only) for the organization.
+
+[Would you like a breakdown by region (ru) or by brand for August 2024?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT SUM(total_sales) AS total_sales
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-08'
+  AND order_type = 'SHIPMENT';
+```
+- **Filters Applied**: year_month = '2024-08'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-08 to 2024-08
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L1","What is the total billed for 2024-08?","Total Billed","N/A","### Total billed (2024-08)
+**Answer**: USD 5,312,870.54
+
+**Scope / Confidence**
+- Includes all shipments for 2024-08; single-period snapshot, no breakdowns
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- The value represents total billed sales (SHIPMENT order_type) for August 2024. No YoY/MoM comparison provided in this request.
+
+[Would you like a breakdown by region or by brand, or a YoY comparison vs 2023-08?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_sales) AS total_billed, MAX(updated_date) AS updated_date
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-08'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2024-08'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-08
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L1","What is the total quantity for 2024-12?","Total Qty","N/A","### Total Quantity (2024-12)
+**Answer**: 58,740 units
+
+**Scope / Confidence**
+- Includes all brands and regions; single-period snapshot
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is the total quantity shipped in December 2024 across all shipments (SHIPMENT order type).
+
+[Would you like a breakdown by brand, ru, or product line for 2024-12?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-12'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2024-12'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-12 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L1","What is the total billed quantity for 2024-12?","TOTAL_BILLED_QTY","N/A","### Total Billed Quantity (2024-12)
+**Answer**: 128,450 units
+
+**Scope / Confidence**
+- Includes all brands and regions; Billing data for 2024-12 (SHIPMENT only)
+- **Data status**: Month-end closed (Last updated 2025-01-15)
+
+**Context (optional)**
+- Represents the total billed quantity for December 2024 across all shipments. Useful for month-end throughput and capacity planning.
+
+Would you like this broken down by region (ru) or by brand for more granular insight?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT SUM(total_qty) AS billed_qty
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-12'
+  AND order_type = 'SHIPMENT';
+```
+
+- **Filters Applied**: year_month = '2024-12'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-12 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L1","What is the total cost for 2024-08?","Total Cost","N/A","### Total Cost (2024-08)
+**Answer**: USD 3,256,480.75
+
+**Scope / Confidence**
+- Includes all shipments across all brands and regions for 2024-08
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is a single-period snapshot of total cost (Billing, Shipments) for August 2024.
+
+Would you like a breakdown by brand or region, or a YoY comparison (e.g., 2023-08 vs 2024-08)?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```
+SELECT SUM(total_cost) AS total_cost
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-08'
+  AND order_type = 'SHIPMENT';
+```
+- **Filters Applied**: year_month = '2024-08'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-08 to 2024-08
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"

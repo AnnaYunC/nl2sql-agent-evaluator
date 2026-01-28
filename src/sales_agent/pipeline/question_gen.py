@@ -36,9 +36,13 @@ def generate_questions(client_openai, model, schema_context, prompt_dir, metrics
         prompt = load_prompt(os.path.join(prompt_dir, filename))
         if not prompt: continue
         
-        intents = [f"Analyze {m}" for m in metrics[:count]]
+        if level == "L1" and count >= len(metrics):
+            intents = [f"Analyze {m}" for m in metrics]
+        else:
+            intents = [f"Analyze {m}" for m in metrics[:count]]
         
-        for intent in intents:
+        for i, intent in enumerate(intents, 1):
+            print(f"  [{i}/{len(intents)}] {intent}...")
             try:
                 resp = client_openai.chat.completions.create(
                     model=model,

@@ -61,6 +61,7 @@ Do not write ad-hoc logic. Follow these templates for stability:
     - Otherwise, default to `ods.fact_monthly_sales_poa_billing`.
 - **Filter Priority**:
     - Default all billing queries to `order_type = 'SHIPMENT'` unless 'OTR' or 'Backlog' is asked.
+    - **Cost Logic**: Only 'SHIPMENT' records carry `total_cost`. For accuracy, always include `order_type = 'SHIPMENT'` when querying cost.
     - For Backlog/Open Orders, do NOT filter by `year_month`; show all current records.
 - **New Customer**: Defined as a customer whose first transaction falls within the requested period.
 - **Entity Linkage Search**:
