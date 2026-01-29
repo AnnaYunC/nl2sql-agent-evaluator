@@ -1,18 +1,38 @@
 [
   {
-    "question": "What is the total billing for 2024-06?",
+    "question": "What is the POA BILLED M/M Growth % for 2025-10?",
     "complexity": "L1"
   },
   {
-    "question": "What is the total cost for 2024-07?",
+    "question": "What is the POA Q/Q Growth % for Q2 2024?",
     "complexity": "L1"
   },
   {
-    "question": "What is the GM% for 2024-08?",
+    "question": "What is the POA Q/Q Growth % for Q3 2024?",
     "complexity": "L1"
   },
   {
-    "question": "What is the ASP for 2024-08?",
+    "question": "What is the YoY growth percentage for POA BILLED in 2024 (vs 2023)?",
+    "complexity": "L1"
+  },
+  {
+    "question": "What is the POA BACKLOG Qty for 2024-12?",
+    "complexity": "L1"
+  },
+  {
+    "question": "What is the POA Q/Q Growth % for Q2 2024?",
+    "complexity": "L1"
+  },
+  {
+    "question": "What is the POA OTR Hit Rate % for 2024-08?",
+    "complexity": "L1"
+  },
+  {
+    "question": "What is the Total OTR Qty for 2024-08?",
+    "complexity": "L1"
+  },
+  {
+    "question": "What is the POA BB Qty Ratio for 2024-12 on a MoM basis (vs 2024-11)?",
     "complexity": "L1"
   }
 ]

@@ -31,7 +31,6 @@
         "Total Booked Qty",
         "POA OTR",
         "POA OTR Qty",
-        "POA OTR Hit Rate %",
         "Total OTR",
         "Total OTR Qty",
         "POA BB Ratio",
@@ -41,7 +40,6 @@
     ],
     "dimensions": {
         "year_month": [
-            "2025-01",
             "2023-01",
             "2023-02",
             "2023-03",

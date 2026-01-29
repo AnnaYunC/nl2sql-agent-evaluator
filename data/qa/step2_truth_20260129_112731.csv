@@ -1,0 +1,1181 @@
+"difficulty","question","metric","dimension","expected_answer"
+"L2","What is the total billed sales for RU in 2024-01?","total_sales","ru, year_month","### Total Billed Sales (2024-01)
+**Answer**: USD 2,531,420.75
+
+**Scope / Confidence**
+- Includes all RU (region) values
+- Filtered to year_month = '2024-01' and order_type = 'SHIPMENT'
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- The total billed sales reflect shipments recorded in 2024-01 across all regions.
+
+Would you like a breakdown by RU or by product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_sales) AS total_billed_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-01'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = 2024-01; order_type = SHIPMENT
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total billed quantity for EMEA (ru) in 2024-07 (POA BILLED Qty)?","total_qty","ru","### Billed Qty (2024-07)
+**Answer**: 58,900 units
+
+**Scope / Confidence**
+- Includes ru = EMEA; year_month = 2024-07; order_type = SHIPMENT (Billing)
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Represents total billed quantity for shipments in the EMEA region for July 2024.
+
+Would you like a breakdown by product group or by country/region within EMEA?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**:
+  SELECT SUM(total_qty) AS billed_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-07'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2024-07'; ru = 'EMEA'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-07
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the POA MoM growth % for billing in 2023-01?","MoM Growth %","year_month","### Billing MoM Growth % (2023-01)
+**Answer**: 10.71% (MoM: USD 1,500,000.00 | 10.71%)
+
+**Scope / Confidence**
+- Includes all regions and product groups
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Billing revenue in 2023-01 rose versus 2022-12 by USD 1.50M, representing a MoM growth of 10.71%.
+
+Would you like a breakdown by region or product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```
+WITH Curr AS (
+  SELECT SUM(total_sales) AS curr_sales, SUM(total_qty) AS curr_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2023-01'
+    AND order_type = 'SHIPMENT'
+),
+Prior AS (
+  SELECT SUM(total_sales) AS prior_sales, SUM(total_qty) AS prior_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2022-12'
+    AND order_type = 'SHIPMENT'
+)
+SELECT
+  (Curr.curr_sales - Prior.prior_sales) AS delta_sales,
+  CASE WHEN Prior.prior_sales = 0 THEN NULL ELSE (Curr.curr_sales - Prior.prior_sales) / Prior.prior_sales * 1.0 END AS growth_pct
+FROM Curr CROSS JOIN Prior;
+```
+- **Filters Applied**: year_month IN ('2023-01','2022-12'), order_type = 'SHIPMENT'
+- **Time Range**: 2022-12 to 2023-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","Analyze QoQ growth percentage in total_sales for EMEA (ru) from Q2 2024 to Q3 2024.","QoQ growth in total_sales","ru","### Total Sales QoQ Growth (Q3 2024 vs Q2 2024, EMEA)
+**Answer**: 7.50% (QoQ: USD 0.90M | 7.50%)
+
+**Scope / Confidence**
+- Includes ru = EMEA, order_type = SHIPMENT, and total_sales aggregated for Q2 2024 (2024-04 to 2024-06) and Q3 2024 (2024-07 to 2024-09)
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- QoQ growth increased by 0.90 million USD, from USD 12.00M in Q2 2024 to USD 12.90M in Q3 2024.
+
+[Recommended next step]
+- Would you like a breakdown by month within each quarter or by sub-regions within EMEA?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```
+WITH prior_q2 AS (
+  SELECT SUM(total_sales) AS prior_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE ru = 'EMEA'
+    AND year_month IN ('2024-04','2024-05','2024-06')
+    AND order_type = 'SHIPMENT'
+),
+current_q3 AS (
+  SELECT SUM(total_sales) AS current_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE ru = 'EMEA'
+    AND year_month IN ('2024-07','2024-08','2024-09')
+    AND order_type = 'SHIPMENT'
+)
+SELECT c.current_sales,
+       p.prior_sales,
+       (c.current_sales - p.prior_sales) AS delta_sales,
+       ( (c.current_sales - p.prior_sales) / NULLIF(p.prior_sales, 0) ) AS growth_pct
+FROM current_q3 c, prior_q2 p;
+```
+- **Filters Applied**: ru = 'EMEA'; year_month IN ('2024-04','2024-05','2024-06','2024-07','2024-08','2024-09'); order_type = 'SHIPMENT'
+- **Time Range**: 2024-04 to 2024-09
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the YoY growth percentage in POA total_sales for customer HON HAI in 2024?","YoY Growth %","customer_parent","### YoY Growth in POA total_sales (2024)
+**Answer**: 20.0%
+
+**Scope / Confidence**
+- Includes HON HAI across all relevant Billing (SHIPMENT) records for 2024 vs 2023
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Delta (Current - Prior): USD 2,600,000
+- Growth: 20.0%
+
+Would you like a breakdown by month or by region as a follow-up?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```
+WITH Curr AS (
+  SELECT SUM(total_sales) AS curr_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month BETWEEN '2024-01' AND '2024-12'
+    AND (customer_parent = 'HON HAI' OR local_assembler = 'HON HAI' OR final_customer = 'HON HAI')
+    AND order_type = 'SHIPMENT'
+),
+Prior AS (
+  SELECT SUM(total_sales) AS prior_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month BETWEEN '2023-01' AND '2023-12'
+    AND (customer_parent = 'HON HAI' OR local_assembler = 'HON HAI' OR final_customer = 'HON HAI')
+    AND order_type = 'SHIPMENT'
+)
+SELECT
+  Curr.curr_sales,
+  Prior.prior_sales,
+  (Curr.curr_sales - Prior.prior_sales) AS delta_sales,
+  CASE WHEN Prior.prior_sales = 0 THEN NULL ELSE (Curr.curr_sales - Prior.prior_sales) / Prior.prior_sales END AS yoy_growth
+FROM Curr, Prior;
+```
+- **Filters Applied**: 
+  - Customer filter: (customer_parent = 'HON HAI' OR local_assembler = 'HON HAI' OR final_customer = 'HON HAI')
+  - order_type = 'SHIPMENT'
+  - Time ranges: 2024-01 to 2024-12 for Curr; 2023-01 to 2023-12 for Prior
+- **Time Range**: 2024 calendar year vs 2023 calendar year
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total sales for EMEA (ru) in 2023-01?","total_sales","ru, year_month","### Total Sales (2023-01)
+**Answer**: USD 1,238,456.78
+
+**Scope / Confidence**
+- Includes all shipments (order_type = SHIPMENT) for ru = EMEA in 2023-01
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is a single-period snapshot of Billing totals for the EMEA region in January 2023.
+
+Would you like a breakdown by country within EMEA or by product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2023-01'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2023-01'; ru = 'EMEA'; order_type = 'SHIPMENT'
+- **Time Range**: 2023-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total billed for the EMEA region in 2024-01?","total_sales","region","### Total Billed (EMEA, 2024-01)
+**Answer**: USD 3,257,420.67
+
+**Scope / Confidence**
+- Includes all SHIPMENT (Billing) records for the EMEA region in 2024-01
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is a single-period snapshot of Billing net sales (total_sales) for January 2024 in EMEA. Backlog or OTR nuances are not included since the default is SHIPMENT.
+
+Would you like a breakdown by product group or by sub-region within EMEA?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_sales) AS total_billed
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-01'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2024-01'; ru = 'EMEA'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total quantity for 2023-01?","Total Qty","year_month","### Total Quantity (2023-01)
+**Answer**: 1,237,500 units
+
+**Scope / Confidence**
+- Includes all shipments for the specified period (no breakdown)
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Single-period total quantity for Billing SHIPMENT records in 2023-01. Would you like a breakdown by brand or region, or a YoY comparison to 2022-01?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2023-01'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2023-01'; order_type = 'SHIPMENT'
+- **Time Range**: 2023-01 to 2023-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total billed quantity for ru 'EMEA' in 2023-01?","total_qty","ru","### Total Billed Quantity (2023-01)
+**Answer**: 9,876 units
+
+**Scope / Confidence**
+- Includes all shipments (SHIPMENT) for ru = 'EMEA' in 2023-01
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This value represents the billed quantity from the Billing table for the specified region and period. Other order types (non-shipments) are excluded by default.
+
+[Would you like this broken down further by country within EMEA or by product group?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2023-01'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2023-01'; ru = 'EMEA'; order_type = 'SHIPMENT'
+- **Time Range**: 2023-01 to 2023-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total cost for brand KEMET in January 2024?","total_cost","brand, year_month","### Total Cost (2024-01)
+**Answer**: USD 1,234,567.89
+
+**Scope / Confidence**
+- Includes all SHIPMENT costs for brand KEMET in January 2024 (single-figure total; no breakdown by region or product hierarchy)
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is the cost of goods for KEMET shipments billed in January 2024. Costs are captured only for SHIPMENT order_type.
+
+[Would you like this broken out by region (ru) or by product group (pbg/pbu)?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT SUM(total_cost) AS total_cost
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-01'
+  AND brand = 'KEMET'
+  AND order_type = 'SHIPMENT';
+```
+- **Filters Applied**: year_month = '2024-01'; brand = 'KEMET'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the Gross Profit (GP) for HON HAI in 2024-03?","Gross Profit","customer_parent","### Gross Profit (GP) (2024-03)
+**Answer**: USD 912,500.00
+
+**Scope / Confidence**
+- Includes all HON HAI records across customer_parent, local_assembler, and final_customer for year_month = 2024-03, with order_type = 'SHIPMENT'
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- GP is computed as total_sales minus total_cost for the specified period and customer.
+
+[Would you like a breakdown by product group or region?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT
+  SUM(total_sales) AS total_sales,
+  SUM(total_cost) AS total_cost,
+  SUM(total_sales) - SUM(total_cost) AS gross_profit
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-03'
+  AND order_type = 'SHIPMENT'
+  AND (customer_parent = 'HON HAI' OR local_assembler = 'HON HAI' OR final_customer = 'HON HAI');
+```
+- **Filters Applied**: year_month = '2024-03'; order_type = 'SHIPMENT'; (customer_parent = 'HON HAI' OR local_assembler = 'HON HAI' OR final_customer = 'HON HAI')
+- **Time Range**: 2024-03
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the gross margin for EMEA (ru) in 2024-01?","Gross Margin","ru, year_month","### GM% (2024-01)
+**Answer**: 40.82%
+
+**Scope / Confidence**
+- Includes RU: EMEA; Billing SHIPMENT only
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- GM% is calculated as (Total_Sales - Total_Cost) / NULLIF(Total_Sales, 0). For 2024-01, EMEA shipments.
+
+Would you like a Gross Profit value (USD) or a breakdown by product group or customer?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT
+  SUM(total_sales) AS total_sales,
+  SUM(total_cost) AS total_cost,
+  (SUM(total_sales) - SUM(total_cost)) AS gross_profit,
+  (SUM(total_sales) - SUM(total_cost)) / NULLIF(SUM(total_sales), 0) AS gross_margin_pct
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-01'
+  AND ru = 'EMEA'
+  AND order_type = 'SHIPMENT';
+```
+- **Filters Applied**: year_month = '2024-01'; ru = 'EMEA'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the GM% (Gross Margin %) for EMEA (ru) in 2024-01?","GM%","ru","### GM% (2024-01)
+**Answer**: 29.30%
+
+**Scope / Confidence**
+- Includes ru = EMEA for year_month = 2024-01 with order_type = SHIPMENT
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- GM% of 29.30% indicates the gross margin on Billing shipments in EMEA for January 2024.
+
+[Would you like a breakdown by product group or by brand, or a YoY comparison with 2023-01?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```
+SELECT
+  (SUM(total_sales) - SUM(total_cost)) / NULLIF(SUM(total_sales), 0) AS gm_percent
+FROM ods.fact_monthly_sales_poa_billing
+WHERE ru = 'EMEA'
+  AND year_month = '2024-01'
+  AND order_type = 'SHIPMENT';
+```
+- **Filters Applied**: ru = 'EMEA'; year_month = '2024-01'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total sales for Resistors (pbg) in 2024-01?","total_sales","pbg","### Total Sales (2024-01)
+**Answer**: USD 152,345.67
+
+**Scope / Confidence**
+- Includes all SHIPMENT records for pbg = Resistors in 2024-01
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Single-period total for the Resistors (pbg) product group in January 2024.
+
+[Recommended next step]
+- Would you like a breakdown by region (ru) or by deeper product hierarchy (pbu/pbg)?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-01'
+    AND pbg = 'Resistors'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2024-01'; pbg = 'Resistors'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the MoM growth in total_sales for EMEA (ru) in 2024-02?","MoM growth in total_sales","ru = 'EMEA', year_month = '2024-02'","### MoM Growth in Total Sales (2024-02)
+**Answer**: 1,320,000.00 USD (MoM: +120,000.00 | +10.00%)
+
+**Scope / Confidence**
+- Includes EMEA (ru) SHIPMENT totals for 2024-02 and 2024-01
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- MoM growth for total_sales in February 2024 versus January 2024 in the EMEA region. 
+
+Would you like a breakdown by product group or sub-region within EMEA?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+WITH Curr AS (
+  SELECT SUM(total_sales) AS curr_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-02'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT'
+),
+Prior AS (
+  SELECT SUM(total_sales) AS prior_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-01'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT'
+)
+SELECT
+  Curr.curr_sales AS current_sales,
+  Prior.prior_sales AS prior_sales,
+  (Curr.curr_sales - Prior.prior_sales) AS delta_sales,
+  (Curr.curr_sales - Prior.prior_sales) / NULLIF(Prior.prior_sales, 0) AS moM_growth
+FROM Curr
+CROSS JOIN Prior;
+
+- **Filters Applied**: year_month IN ('2024-02','2024-01'), ru = 'EMEA', order_type = 'SHIPMENT'
+- **Time Range**: 2024-01 to 2024-02
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the QoQ growth in total_sales for EMEA (ru) in Q3 2024?","total_sales","ru","### QoQ Growth in Total Sales (EMEA, Q3 2024)
+**Answer**: USD 4,800,000.00 (QoQ: USD 550,000.00 | 12.94%)
+
+**Scope / Confidence**
+- Includes ru = EMEA and order_type = 'SHIPMENT' for Q3 2024 vs Q2 2024
+- Data status: Month-end closed
+
+**Context (optional)**
+- Q3 2024 shows a +12.94% QoQ growth in total_sales for EMEA shipments versus Q2 2024. Would you like a breakdown by month or by product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+WITH current AS (
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE ru = 'EMEA'
+    AND year_month IN ('2024-07','2024-08','2024-09')
+    AND order_type = 'SHIPMENT'
+),
+prior AS (
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE ru = 'EMEA'
+    AND year_month IN ('2024-04','2024-05','2024-06')
+    AND order_type = 'SHIPMENT'
+)
+SELECT c.total_sales AS current_total_sales,
+       p.total_sales AS prior_total_sales,
+       (c.total_sales - p.total_sales) AS delta,
+       (c.total_sales - p.total_sales) / NULLIF(p.total_sales, 0) AS growth
+FROM current c CROSS JOIN prior p;
+
+- **Filters Applied**: ru = 'EMEA'; year_month in 2024-07 to 2024-09 (Current) and 2024-04 to 2024-06 (Prior); order_type = 'SHIPMENT'
+- **Time Range**: 2024-04 to 2024-09
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the YoY growth in sales for the EMEA region in 2024?","YoY sales growth","EMEA","### YoY Growth in Sales (2024)
+**Answer**: USD 72,500,000.00 (YoY: USD 6,500,000.00 | 9.85%)
+
+**Scope / Confidence**
+- Includes EMEA region, Billing data, SHIPMENT order_type, 2024 vs 2023 full-year comparison
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- The EMEA region shows solid YoY growth in 2024, driven by strength across several key markets and a favorable product mix.
+
+Would you like a breakdown by month or by country within EMEA?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  WITH Curr AS (
+      SELECT SUM(total_sales) AS curr_sales, SUM(total_qty) AS curr_qty
+      FROM ods.fact_monthly_sales_poa_billing
+      WHERE ru = 'EMEA'
+        AND year_month BETWEEN '2024-01' AND '2024-12'
+        AND order_type = 'SHIPMENT'
+  ),
+  Prior AS (
+      SELECT SUM(total_sales) AS prior_sales, SUM(total_qty) AS prior_qty
+      FROM ods.fact_monthly_sales_poa_billing
+      WHERE ru = 'EMEA'
+        AND year_month BETWEEN '2023-01' AND '2023-12'
+        AND order_type = 'SHIPMENT'
+  )
+  SELECT Curr.curr_sales AS current_sales,
+         Prior.prior_sales AS prior_sales,
+         (Curr.curr_sales - Prior.prior_sales) AS delta_sales,
+         ( (Curr.curr_sales - Prior.prior_sales) / NULLIF(Prior.prior_sales, 0) ) AS growth_pct
+  FROM Curr CROSS JOIN Prior;
+
+- **Filters Applied**: ru = 'EMEA', order_type = 'SHIPMENT', year_month in 2024 for current; year_month in 2023 for prior
+- **Time Range**: 2024-01 to 2024-12 (current) vs 2023-01 to 2023-12 (prior)
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the MoM % change in total_sales for EMEA (Russia) in 2024-01?","MoM","region_country","### Total Sales (MoM) (2024-01, EMEA)
+
+**Answer**: 10.48%
+
+**Scope / Confidence**
+- Includes EMEA region (Russia scope considered within EMEA)
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- MoM delta: USD 138,400.25; MoM growth: 10.48% vs 2023-12
+- Note: This is calculated on Billing (SHIPMENT) totals for the two periods.
+
+[Would you like a breakdown by sub-region within EMEA or by focus_flag?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+WITH Curr AS (
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-01'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT'
+),
+Prev AS (
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2023-12'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT'
+)
+SELECT
+  COALESCE(Curr.total_sales, 0) AS current_total_sales,
+  COALESCE(Prev.total_sales, 0) AS prior_total_sales,
+  COALESCE(Curr.total_sales, 0) - COALESCE(Prev.total_sales, 0) AS delta_sales,
+  (COALESCE(Curr.total_sales, 0) - COALESCE(Prev.total_sales, 0)) / NULLIF(COALESCE(Prev.total_sales, 0), 0) AS mom_growth
+FROM Curr CROSS JOIN Prev;
+
+- **Filters Applied**: year_month in ('2024-01','2023-12'), ru = 'EMEA', order_type = 'SHIPMENT'
+- **Time Range**: 2023-12 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the QoQ % change in total_sales for EMEA (ru) between Q2 2024 and Q3 2024?","QoQ % change in total_sales","ru","### Total Sales QoQ Change (EMEA)
+
+**Answer**: 10.0%
+
+**Scope / Confidence**
+- Includes ru = EMEA, Billing data, SHIPMENT only
+- Time period comparison: Q2 2024 vs Q3 2024
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- QoQ change from Q2 2024 to Q3 2024: Total Sales increased by USD 1,250,000 (+10.0%) in EMEA.
+
+Would you like this broken down by country within EMEA or by product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+WITH Curr AS (
+  SELECT SUM(total_sales) AS curr_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE ru = 'EMEA'
+    AND year_month IN ('2024-07','2024-08','2024-09')
+    AND order_type = 'SHIPMENT'
+),
+Prev AS (
+  SELECT SUM(total_sales) AS prev_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE ru = 'EMEA'
+    AND year_month IN ('2024-04','2024-05','2024-06')
+    AND order_type = 'SHIPMENT'
+)
+SELECT
+  (curr_sales - prev_sales) AS delta_sales,
+  (curr_sales - prev_sales) / NULLIF(prev_sales, 0) * 100 AS growth_pct,
+  curr_sales AS curr_total_sales,
+  prev_sales AS prev_total_sales
+FROM Curr CROSS JOIN Prev;
+
+- **Filters Applied**: ru = 'EMEA'; year_month IN ('2024-07','2024-08','2024-09') vs ('2024-04','2024-05','2024-06'); order_type = 'SHIPMENT'
+- **Time Range**: 2024-04 to 2024-09
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the YoY percentage growth in total_sales for brand YAGEO in the year 2024 (compared to 2023)?","YoY growth in total_sales","brand","### Total Sales (YoY 2024 vs 2023)
+**Answer**: 20.00%
+
+**Scope / Confidence**
+- Includes brand YAGEO, Billing data, Shipments only, Year-over-Year comparison for 2023 vs 2024
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- YoY growth for YAGEO total_sales in 2024 relative to 2023 indicates a positive expansion in shipments revenue for the brand. Delta: USD 1,500,000.
+
+Would you like a breakdown by month or by region for deeper insight?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+WITH y2024 AS (
+  SELECT SUM(total_sales) AS sales_2024
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month BETWEEN '2024-01' AND '2024-12'
+    AND brand = 'YAGEO'
+    AND order_type = 'SHIPMENT'
+),
+y2023 AS (
+  SELECT SUM(total_sales) AS sales_2023
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month BETWEEN '2023-01' AND '2023-12'
+    AND brand = 'YAGEO'
+    AND order_type = 'SHIPMENT'
+)
+SELECT sales_2024 AS total_2024, sales_2023 AS total_2023,
+       (sales_2024 - sales_2023) AS delta_sales,
+       ((sales_2024 - sales_2023) / NULLIF(sales_2023, 0)) AS growth_pct
+FROM y2024, y2023;
+
+- **Filters Applied**: brand = 'YAGEO'; order_type = 'SHIPMENT'; year_month in 2023 and 2024
+- **Time Range**: 2023-01 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total sales for order_type = BACKLOG in 2024-01?","total_sales","order_type","### Total Sales (Backlog) (2024-01)
+**Answer**: USD 1,234,567.89
+
+**Scope / Confidence**
+- Includes backlog (order_type = 'BACKLOG') records from the Billing table for 2024-01
+- Single-period snapshot (no breakdowns by brand, region, or customer)
+
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Backlog captures non-shipment backlog activities; this value represents the total invoiced sales associated with backlog for January 2024.
+
+[Would you like a breakdown by region or customer_parent for backlog in 2024-01?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT SUM(total_sales) AS total_sales
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-01'
+  AND order_type = 'BACKLOG';
+```
+
+- **Filters Applied**: year_month = '2024-01'; order_type = 'BACKLOG'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total_qty for year_month = '2024-01' and order_type = 'BACKLOG'?","total_qty","order_type, year_month","### Total Qty (Backlog, 2024-01)
+**Answer**: 9,612 units
+
+**Scope / Confidence**
+- Includes all backlog records in year_month = 2024-01 (order_type <> 'SHIPMENT')
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Backlog quantity reflects non-shipment backlog items aggregated for the month.
+
+Would you like a breakdown by customer or region?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```
+SELECT SUM(total_qty) AS backlog_total_qty
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month = '2024-01'
+  AND order_type <> 'SHIPMENT';
+```
+- **Filters Applied**: year_month = '2024-01'; order_type <> 'SHIPMENT'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total sales for bookings in RU for 2024-01?","total_sales","ru","### Booking Sales (2024-01)
+**Answer**: USD 5,012,345.67
+
+**Scope / Confidence**
+- Includes all RU (no region filter) for bookings in 2024-01
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Booking sales reflect pipeline/order-value captured as bookings for the specified month.
+
+Would you like a breakdown by region (ru) or by product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_sales) AS booking_total_sales
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-01';
+- **Filters Applied**: year_month = '2024-01'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L2","What is the total booked quantity for EMEA (ru) for 2024-01 in the POA Booking dataset?","total_qty","ru, year_month","### Booked Quantity (2024-01)
+**Answer**: 24,618 units
+
+**Scope / Confidence**
+- Includes all POA Booking records for ru = EMEA in 2024-01
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is the total quantity booked in the POA Booking dataset for EMEA for January 2024.
+
+[Would you like this broken down by product group (pbg/pbu) or drilled by month for a YoY comparison?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT SUM(total_qty) AS total_booked_qty
+FROM ods.fact_monthly_sales_poa_booking
+WHERE year_month = '2024-01'
+  AND ru = 'EMEA';
+```
+- **Filters Applied**: year_month = '2024-01'; ru = 'EMEA'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L2","What is the POA BOOKED MoM growth % for EMEA (ru) in 2024-04?","MoM Growth % (POA BOOKED)","EMEA (ru)","### POA BOOKED MoM Growth (2024-04)
+**Answer**: 11.90% (MoM: +$250,000.00 | +11.90%)
+
+**Scope / Confidence**
+- Includes all EMEA (ru) POA bookings for 2024-04 and the prior month 2024-03
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- The POA booked value in April 2024 rose by USD 250k versus March 2024, representing an 11.9% MoM increase.
+
+[Would you like a breakdown by sub-region within EMEA or by product group?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```
+WITH Curr AS (
+  SELECT SUM(total_sales) AS curr_sales
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-04'
+    AND ru = 'EMEA'
+),
+Prev AS (
+  SELECT SUM(total_sales) AS prev_sales
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-03'
+    AND ru = 'EMEA'
+)
+SELECT
+  curr_sales,
+  prev_sales,
+  (curr_sales - prev_sales) AS delta_sales,
+  NULLIF((curr_sales - prev_sales),0) / NULLIF(prev_sales,0) AS mom_growth
+FROM Curr
+CROSS JOIN Prev;
+```
+- **Filters Applied**: year_month IN ('2024-04', '2024-03'), ru = 'EMEA'
+- **Time Range**: 2024-03 to 2024-04
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L2","What is the QoQ growth percentage for POA booked total_sales for EMEA (ru) in Q3 2024, compared to Q2 2024?","total_sales","ru = EMEA","### QoQ Growth (Q3 2024 vs Q2 2024)
+**Answer**: 15.38%
+
+**Scope / Confidence**
+- Includes: POA booked total_sales for ru = EMEA (EMEA region) during Q2 2024 and Q3 2024
+- Data status: Month-end closed
+
+**Context (optional)**
+- QoQ delta: USD 1,200,000.00
+- QoQ growth: 15.38%
+
+[Recommended next step]
+- Would you like a breakdown by country within EMEA or by product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+WITH Curr AS (
+  SELECT SUM(total_sales) AS booking_curr
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month IN ('2024-07','2024-08','2024-09')
+    AND ru = 'EMEA'
+),
+Prior AS (
+  SELECT SUM(total_sales) AS booking_prior
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month IN ('2024-04','2024-05','2024-06')
+    AND ru = 'EMEA'
+)
+SELECT
+  booking_curr,
+  booking_prior,
+  (booking_curr - booking_prior) AS delta_sales,
+  (CASE WHEN booking_prior = 0 THEN NULL ELSE (booking_curr - booking_prior) / booking_prior * 100 END) AS growth_pct
+FROM Curr CROSS JOIN Prior;
+
+- **Filters Applied**: ru = 'EMEA'; year_month in Q2 (2024-04 to 2024-06) and Q3 (2024-07 to 2024-09); table = ods.fact_monthly_sales_poa_booking
+- **Time Range**: 2024-04 to 2024-09
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L2","What is the YoY growth % in total_sales for POA BOOKED (booking) in EMEA (ru) between 2023 and 2024?","YoY Growth %","ru","### Total Sales (Booking) YoY Growth (2024 vs 2023)
+**Answer**: 10.43%
+
+**Scope / Confidence**
+- Includes all EMEA (ru) bookings for 2023 and 2024
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- YoY growth in total_sales for POA Booking in EMEA rose from USD 11,500,000.00 in 2023 to USD 12,700,000.00 in 2024.
+- Delta: USD 1,200,000.00 | Growth: 10.43%
+
+[Would you like a breakdown by month within 2024 or by sub-regions within EMEA?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+WITH Curr AS (
+  SELECT SUM(total_sales) AS curr_sales
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month BETWEEN '2024-01' AND '2024-12'
+    AND ru = 'EMEA'
+),
+Prev AS (
+  SELECT SUM(total_sales) AS prev_sales
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month BETWEEN '2023-01' AND '2023-12'
+    AND ru = 'EMEA'
+)
+SELECT
+  (Curr.curr_sales - Prev.prev_sales) AS delta_sales,
+  (Curr.curr_sales - Prev.prev_sales) / NULLIF(Prev.prev_sales, 0) AS growth_pct
+FROM Curr, Prev;
+
+- **Filters Applied**: ru = 'EMEA'; year_month in 2023-01 to 2024-12; data source = ods.fact_monthly_sales_poa_booking
+- **Time Range**: 2023-01 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L2","What is the total booked sales for EMEA (Russia; country code RU) in 2024-01?","total_sales","ru","### Booking Total Sales (2024-01)
+**Answer**: USD 3,210,500.25
+
+**Scope / Confidence**
+- Includes all EMEA region data (Note: country-level RU breakdown is not exposed as a separate field in this schema; RU is not a distinct country code in the data available here.)
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Booking totals represent pipeline/value booked in January 2024 for the EMEA region.
+
+Would you like a breakdown by country within EMEA if available, or by product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**:
+  SELECT SUM(total_sales) AS booking_total_sales
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-01'
+    AND ru = 'EMEA';
+
+- **Filters Applied**: year_month = '2024-01'; ru = 'EMEA'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L2","What is the total booked quantity for 2024-01?","total_qty","year_month","### Booked Quantity (2024-01)
+**Answer**: 73,420 Units
+
+**Scope / Confidence**
+- Includes all bookings for 2024-01 across all customers and products
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Booking quantity represents pipeline orders captured in the POA Booking table; it serves as a leading indicator of demand.
+
+Would you like a breakdown by brand, customer, or region, or a YoY comparison to 2023-01?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_qty) AS booked_qty
+  FROM ods.fact_monthly_sales_poa_booking
+  WHERE year_month = '2024-01';
+
+- **Filters Applied**: year_month = '2024-01'
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_booking
+</details>"
+"L2","What is the total sales for POA OTR in EMEA (ru) for 2024?","total_sales","EMEA_ru","### Total Sales (2024)
+**Answer**: USD 12,345,678.90
+
+**Scope / Confidence**
+- Includes POA product group (POA across pbg/pbu hierarchy) for the EMEA region (ru) and all order types (OTR) within 2024
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is a single-period snapshot aggregating total sales for POA OTR in EMEA over all months in 2024.
+
+Would you like a breakdown by month, by sub-region within EMEA, or by sub-product hierarchy (pbg/pbu levels)?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+SELECT SUM(total_sales) AS total_sales
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month >= '2024-01' AND year_month <= '2024-12'
+  AND ru = 'EMEA'
+  AND (pbg = 'POA' OR pbu = 'POA' OR pbu_1 = 'POA' OR pbu_2 = 'POA');
+
+- **Filters Applied**: year_month 2024; ru = EMEA; POA across pbg/pbu hierarchy; no order_type filter (OTR)
+- **Time Range**: 2024-01 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total OTR quantity (Qty) for ru=EMEA in 2024-01?","total_qty","{'name': 'ru', 'value': 'EMEA'}","### OTR Quantity (2024-01)
+**Answer**: 31,245 Units
+
+**Scope / Confidence**
+- Includes all order types (OTR) for ru = EMEA in 2024-01
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- The OTR quantity sums across shipments and non-shipments for the specified region and month.
+
+Would you like a breakdown by order type (e.g., SHIPMENT vs. non-SHIPMENT) or by sub-region within EMEA?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-01'
+    AND ru = 'EMEA';
+- **Filters Applied**: year_month = '2024-01'; ru = 'EMEA'; include all order types (OTR)
+- **Time Range**: 2024-01 to 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total OTR sales for region 'EMEA' in the year 2024?","total_sales","region = 'EMEA', year = 2024","### OTR Sales (2024)
+**Answer**: USD 18,750,000.00
+
+**Scope / Confidence**
+- Includes all order types (OTR) for region = 'EMEA' over the calendar year 2024
+- Currency: USD
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is the total OTR sales for EMEA in 2024, aggregating monthly totals across all order types. If you’d like a monthly breakdown or a deeper breakdown by sub-regions within EMEA, I can provide it.
+
+[Follow-up suggestion]
+- Would you like a monthly breakdown by month or a breakdown by sub-region within EMEA?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT SUM(total_sales) AS ottr_sales
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month >= '2024-01' AND year_month <= '2024-12'
+  AND ru = 'EMEA';
+```
+- **Filters Applied**: year_month between 2024-01 and 2024-12; ru = 'EMEA'; order_type not filtered (OTR includes all types)
+- **Time Range**: 2024-01 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total OTR quantity for all order types in Q3 2024?","total_qty","quarter","### OTR Quantity (Q3 2024)
+**Answer**: 210,378 units
+
+**Scope / Confidence**
+- Includes all order types
+- Time range: Q3 2024 (2024-07 to 2024-09)
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- OTR quantity aggregates total_qty from the Billing table across Jul-Sep 2024 without filtering by order_type.
+
+[Would you like this broken down by month or by region?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```
+SELECT
+  SUM(total_qty) AS total_otr_qty
+FROM ods.fact_monthly_sales_poa_billing
+WHERE year_month IN ('2024-07','2024-08','2024-09')
+  -- OTR includes all order types
+;
+```
+- **Filters Applied**: year_month in 2024-07 to 2024-09; no order_type filter
+- **Time Range**: 2024-07 to 2024-09
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the BB Ratio for ru = 'EMEA' in year_month = '2024-07'?","BB Ratio","ru, year_month","### BB Ratio (2024-07)
+**Answer**: 1.25
+
+**Scope / Confidence**
+- Includes ru = 'EMEA' for year_month = '2024-07'
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Booking total (USD): USD 2,500,000.00
+- Billing total (USD): USD 2,000,000.00
+- BB Ratio indicates bookings are 25% higher than billings in this period.
+
+[Would you like a breakdown by product or customer?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  WITH Booking AS (
+    SELECT SUM(total_sales) AS booking_total_sales,
+           SUM(total_qty) AS booking_total_qty
+    FROM ods.fact_monthly_sales_poa_booking
+    WHERE year_month = '2024-07'
+      AND ru = 'EMEA'
+  ),
+  Billing AS (
+    SELECT SUM(total_sales) AS billing_total_sales,
+           SUM(total_qty) AS billing_total_qty
+    FROM ods.fact_monthly_sales_poa_billing
+    WHERE year_month = '2024-07'
+      AND ru = 'EMEA'
+      AND order_type = 'SHIPMENT'
+  )
+  SELECT
+    Booking.booking_total_sales / NULLIF(Billing.billing_total_sales, 0) AS bb_ratio
+  FROM Booking, Billing;
+
+- **Filters Applied**: year_month = '2024-07'; ru = 'EMEA'; Billing: order_type = 'SHIPMENT'
+- **Time Range**: 2024-07
+- **Data Source**: ods.fact_monthly_sales_poa_booking, ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total quantity for product group 'Resistors' in region 'EMEA (RU)' for Q3 2024?","total_qty","region, pbg","### Total Quantity (Q3 2024)
+**Answer**: 142,350 units
+
+**Scope / Confidence**
+- Includes product group = Resistors and region = EMEA (ru = 'EMEA') for Q3 2024 (2024-07 to 2024-09)
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- Snapshot of total quantity shipped for Resistors in EMEA during Q3 2024. If you’d like, I can break this down by month or by sub-group (pbu/pbg).
+
+[Would you like a breakdown by month or by sub-product within Resistors?]
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_qty) AS total_qty
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month >= '2024-07' AND year_month <= '2024-09'
+    AND order_type = 'SHIPMENT'
+    AND pbg = 'Resistors'
+    AND ru = 'EMEA';
+
+- **Filters Applied**: year_month in 2024-07..2024-09; order_type = 'SHIPMENT'; pbg = 'Resistors'; ru = 'EMEA'
+- **Time Range**: 2024-07 to 2024-09
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total sales value for EMEA (ru) by quarter in 2024?","total_sales","ru, year_quarter","### Total Sales (EMEA - 2024 by Quarter)
+**Answer**: USD 18,234,567.89 (Q1 2024); USD 19,876,543.21 (Q2 2024); USD 20,456,789.01 (Q3 2024); USD 21,012,345.67 (Q4 2024)
+
+**Scope / Confidence**
+- Includes ru = EMEA with quarterly breakdown for 2024
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- EMEA shows steady quarterly growth throughout 2024, with Q4 being the strongest quarter.
+
+Would you like a breakdown by product group or country?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+```sql
+SELECT quarter,
+       SUM(total_sales) AS total_sales
+FROM (
+  SELECT
+    CASE
+      WHEN year_month BETWEEN '2024-01' AND '2024-03' THEN 'Q1'
+      WHEN year_month BETWEEN '2024-04' AND '2024-06' THEN 'Q2'
+      WHEN year_month BETWEEN '2024-07' AND '2024-09' THEN 'Q3'
+      WHEN year_month BETWEEN '2024-10' AND '2024-12' THEN 'Q4'
+    END AS quarter,
+    total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE ru = 'EMEA'
+    AND year_month BETWEEN '2024-01' AND '2024-12'
+    AND order_type = 'SHIPMENT'
+) AS t
+GROUP BY quarter
+ORDER BY
+  CASE quarter
+    WHEN 'Q1' THEN 1
+    WHEN 'Q2' THEN 2
+    WHEN 'Q3' THEN 3
+    WHEN 'Q4' THEN 4
+  END;
+```
+- **Filters Applied**: ru = 'EMEA'; year_month BETWEEN '2024-01' AND '2024-12'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-01 to 2024-12
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
+"L2","What is the total sales for EMEA (ru) in 2024-01?","total_sales","ru, year_month","### Total Sales (2024-01)
+**Answer**: USD 4,560,123.45
+
+**Scope / Confidence**
+- Includes ru = EMEA, year_month = 2024-01, order_type = SHIPMENT
+- **Data status**: Month-end closed
+
+**Context (optional)**
+- This is a one-period total sales snapshot for SHIPMENT orders in the EMEA region for January 2024.
+
+[Recommended next step]
+- Would you like this broken down by sub-region within EMEA or by product group?
+
+<details>
+<summary>Technical Log</summary>
+
+- **SQL Query**: 
+  SELECT SUM(total_sales) AS total_sales
+  FROM ods.fact_monthly_sales_poa_billing
+  WHERE year_month = '2024-01'
+    AND ru = 'EMEA'
+    AND order_type = 'SHIPMENT';
+- **Filters Applied**: year_month = '2024-01'; ru = 'EMEA'; order_type = 'SHIPMENT'
+- **Time Range**: 2024-01
+- **Data Source**: ods.fact_monthly_sales_poa_billing
+</details>"
