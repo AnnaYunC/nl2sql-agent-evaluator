@@ -29,7 +29,7 @@ The system utilizes two primary fact tables with **monthly aggregated data**. Al
 ### 3.1 Dimensions
 | Column Name | Category | Description / Constraints | Sample Values (Non-Exhaustive) |
 | :--- | :--- | :--- | :--- |
-| `year_month` | Time | Primary temporal filter (Format: `YYYY-MM`). | `2024-12`, `2025-01` |
+| `year_month` | Time | Primary temporal filter (Format: `YYYYMM`). | `202412`, `202501` |
 | `order_type` | Business | Filter Billing/Booking status. | `SHIPMENT`, `PAST DUE`, `BACKLOG`, `BOOKING` |
 | `brand` | Product | Product brand names. | `YAGEO`, `PULSE`, `KEMET`, `CHILISIN`, `TOKIN` |
 | `ru` | Region | Reporting Unit (Main region). | `AMERICAS`, `EMEA`, `GREAT CHINA`, `SOUTHEAST ASIA` |
