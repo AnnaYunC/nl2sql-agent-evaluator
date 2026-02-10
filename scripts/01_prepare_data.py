@@ -50,7 +50,7 @@ def get_sample_data(table_name, columns, output_file):
                 # Decide strategy based on column type
                 if col in metric_cols:
                     # For metrics/dates, just take distinct values from a sample
-                    query = f"SELECT TOP 100 [{col}] FROM {table_name}"
+                    query = f"SELECT TOP 50 [{col}] FROM {table_name}"
                     df = pd.read_sql(query, conn)
                     values = df[col].dropna().unique().astype(str).tolist()
                     # Take random sample of 30
@@ -58,7 +58,7 @@ def get_sample_data(table_name, columns, output_file):
                     
                 else:
                     # For dimensions, get Top 100 by frequency
-                    query = f"SELECT TOP 100 [{col}], COUNT(*) as cnt FROM {table_name} WHERE [{col}] IS NOT NULL GROUP BY [{col}] ORDER BY cnt DESC"
+                    query = f"SELECT TOP 50 [{col}], COUNT(*) as cnt FROM {table_name} WHERE [{col}] IS NOT NULL GROUP BY [{col}] ORDER BY cnt DESC"
                     print(f"   Fetching Top 50 for: {col}")
                     df = pd.read_sql(query, conn)
                     sample_values = df[col].astype(str).tolist()

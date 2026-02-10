@@ -160,7 +160,6 @@ Follow these simplified patterns for consistency.
 ### 4.2 Cross-Period Comparisons (MoM/QoQ/YoY)
 Use simple CTEs to isolate periods before joining. Use `NULLIF` for all division.
 - **Example MoM**: `(Curr - Prior) / NULLIF(Prior, 0)`
-- **Growth % Format**: Always report both Delta and Growth %.
 
 ### 4.3 Cross-Table Aggregation Patterns (Budget vs Billing / BB Ratios)
 **SOTA CTE-First Protocol**: For ANY query involving multiple fact tables (e.g., Hit Rate, Book-to-Bill), you **MUST** follow this 5-step strict isolation pattern.
@@ -181,18 +180,6 @@ Use simple CTEs to isolate periods before joining. Use `NULLIF` for all division
     - *NOTE*: Use `order_type='SHIPMENT'` for Billing unless "OTR" Hit Rate is asked.
     - *NOTE*: Do NOT join on `order_type` for the Budget CTE.
     - *NOTE*: If filtering by Customer, apply `(customer_parent LIKE '%X%' OR local_assembler LIKE '%X%' OR final_customer LIKE '%X%')` to **BOTH** CTEs.
-
-### 4.4 Time Period Rules & Proxies (CRITICAL)
-**Granularity**: The data is **MONTHLY**. "Today", "Current", or "Latest" queries must align to the **Latest Closed Month**.
-
-| Situation | REQUIRED SQL Pattern |
-|-----------|---------------------|
-| **Latest Closed Month** | `year_month = FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyy-MM')` |
-| **MTD (Month-to-Date)** | `WHERE year_month = FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyy-MM')` (Proxy) |
-| **QTD (Quarter-to-Date)** | `WHERE year_month >= FORMAT(DATEADD(quarter, DATEDIFF(quarter, 0, DATEADD(month, -1, GETDATE())), 0), 'yyyy-MM') AND year_month <= FORMAT(DATEADD(month, -1, GETDATE()), 'yyyy-MM')` |
-| **YTD (Year-to-Date)** | `WHERE year_month >= FORMAT(DATEFROMPARTS(YEAR(DATEADD(month, -1, GETDATE())), 1, 1), 'yyyy-MM') AND year_month <= FORMAT(DATEADD(month, -1, GETDATE()), 'yyyy-MM')` |
-| **"Last N months"** | `year_month >= FORMAT(DATEADD(MONTH, -(N+1), GETDATE()), 'yyyy-MM') AND year_month < FORMAT(GETDATE(), 'yyyy-MM')` |
-| **Future / Risk** | `year_month <= FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyy-MM')` (NEVER check future budget misses) |
 
 **Example: Hit Rate Logic**
 ```sql
