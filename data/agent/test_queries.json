@@ -1,10 +1,10 @@
 [
   {
-    "question": "What is the Hit Rate % for MLCC in 2025-04?",
-    "complexity": "L2"
+    "question": "What is the Total Sales for 2025-04?",
+    "complexity": "L1"
   },
   {
-    "question": "What is the POA Hit Rate % for HIGH CAP in Q2 2025?",
-    "complexity": "L2"
+    "question": "What is the POA backlog for 2025-01?",
+    "complexity": "L1"
   }
 ]

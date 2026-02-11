@@ -8,6 +8,7 @@ The system utilizes two primary fact tables with **monthly aggregated data**. Al
 | Table Name | Schema | Semantic Purpose |
 | :--- | :--- | :--- |
 | `fact_monthly_sales_poa_billing` | `ods.` | **Billing (Actuals)**: Revenue, shipments, billed sales, and costs. **(NO BUDGET COLUMNS)** |
+| `fact_monthly_sales_poa_billing` | `ods.` | **Backlog**: DEFINED AS this table with `order_type <> 'SHIPMENT'`. **NEVER** use Booking table for Backlog. |
 | `fact_monthly_sales_poa_booking` | `ods.` | **Booking (Pipeline)**: Sales orders received, forward-looking demand. |
 | `fact_monthly_sales_poa_budget` | `ods.` | **Budget (Target)**: Financial targets. |
 
@@ -188,11 +189,20 @@ Use simple CTEs to isolate periods before joining. Use `NULLIF` for all division
 | Situation | REQUIRED SQL Pattern |
 |-----------|---------------------|
 | **Latest Closed Month** | `year_month = FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyy-MM')` |
+| **Specific Future Month** | **QUERY EXACTLY**: `year_month = 'YYYY-MM'` <br> **CRITICAL**: If user asks for '2025-04', you **MUST** query '2025-04'. **DO NOT** use the 'Latest Closed Month' proxy. It is better to return empty results than to proxy incorrectly. |
 | **MTD (Month-to-Date)** | `WHERE year_month = FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyy-MM')` (Proxy) |
 | **QTD (Quarter-to-Date)** | `WHERE year_month >= FORMAT(DATEADD(quarter, DATEDIFF(quarter, 0, DATEADD(month, -1, GETDATE())), 0), 'yyyy-MM') AND year_month <= FORMAT(DATEADD(month, -1, GETDATE()), 'yyyy-MM')` |
 | **YTD (Year-to-Date)** | `WHERE year_month >= FORMAT(DATEFROMPARTS(YEAR(DATEADD(month, -1, GETDATE())), 1, 1), 'yyyy-MM') AND year_month <= FORMAT(DATEADD(month, -1, GETDATE()), 'yyyy-MM')` |
 | **"Last N months"** | `year_month >= FORMAT(DATEADD(MONTH, -(N+1), GETDATE()), 'yyyy-MM') AND year_month < FORMAT(GETDATE(), 'yyyy-MM')` |
-| **Future / Risk** | `year_month <= FORMAT(DATEADD(MONTH, -1, GETDATE()), 'yyyy-MM')` (NEVER check future budget misses) |
+| **Future / Risk Analysis** | Only apply logic if analyzing "Risk" or "Miss". If user asks for "Forecast" or "Budget" for future, query explicit future months. |
+
+### 4.5 Mandatory Filter Standards
+- **Sales / Revenue / Billing**: You **MUST** filter `order_type = 'SHIPMENT'` unless "OTR" (Order-To-Revenue) is explicitly requested.
+    - *Rationale*: Non-shipment types (Backlog, etc.) are valid BILLING records but not realized REVENUE.
+- **Backlog**: You **MUST** Query `ods.fact_monthly_sales_poa_billing` with `order_type <> 'SHIPMENT'`.
+    - *Rationale*: Backlog is defined as "Billing records not yet shipped". **NEVER** use the Booking table for Backlog.
+- **Booking**: Use `ods.fact_monthly_sales_poa_booking`.
+    - *Note*: Booking table values are always valid (no `order_type` filter needed usually, but `order_type='BOOKING'` is safe).
 
 **Example: Hit Rate Logic**
 ```sql
