@@ -15,62 +15,44 @@ In enterprise environments, Generative AI applications (like NL2SQL Data Agents)
 
 ---
 
-## 🏗️ Architecture
+## AI Data Agent Evaluator (NL2SQL QA Framework)
 
-Below is the automated workflow powered by the framework:
+> [!NOTE]
+> **Portfolio Version**: This repository has been anonymized. All business entities, customer names, and specific product lines have been replaced with generic placeholders (e.g., `REGION_A`, `CUSTOMER_X`) to protect proprietary data while showcasing the underlying architectural framework.
 
+## 📈 Business Value & Context
+This project provides a robust, professional-grade framework for **Generative AI Data Agents** (specifically NL2SQL solutions). In enterprise environments, ensuring that an LLM correctly translates natural language into complex SQL (handling joins, ratios, and business logic) is a critical challenge.
+
+This framework automates the **Deployment, Data Preparation, and Multi-Level QA** pipeline to ensure high accuracy and reliability of AI-driven data insights.
+
+## 🏗️ System Architecture
 ```mermaid
 graph TD
-    classDef step fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef agent fill:#f3e5f5,stroke:#4a148c,stroke-width:2px;
-    classDef azure fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px;
-
-    DB[(Fabric SQL Endpoint)]:::azure
-
-    subgraph Data Prep
-        S1[01_prepare_data.py]:::step --> |Extract Samples| DB
-        DB --> |Outputs| SD(sample_data_*.txt)
+    subgraph "Data Layer (Microsoft Fabric / SQL)"
+        DB[(Fact Tables: Billing, Booking, Budget)]
     end
 
-    subgraph Agent Deployment
-        S2[02_deploy_agent.py]:::step --> |Read Instructions| P(prompts/)
-        S2 --> |Compile JSON| C(agent_config.json)
-        C --> |Azure SDK Upload| OL[(Fabric OneLake)]:::azure
+    subgraph "Testing Pipeline (Python CLI)"
+        P1[01_prepare_data.py] -->|Sample Schema| P2[02_deploy_agent.py]
+        P2 -->|Configuration| AGENT(Data Agent)
+        AGENT -->|NL2SQL Result| P3[03_run_qa.py]
     end
 
-    subgraph QA Execution Pipeline
-        S3[03_run_qa.py]:::step
-        S3 --> QG[1. Question Generation]
-        S3 --> GT[2. Ground Truth Gen]
-        S3 --> AE[3. Agent Execution]:::agent
-        S3 --> EV[4. LLM Evaluation]
-        
-        QG --> |Generate Edge Cases| GT
-        GT --> |Expected Answer| EV
-        AE --> |Actual NL + SQL| EV
-        EV --> |Score & Reason| RPT(QA Reports / CSV)
+    subgraph "QA Engine (LLM-as-a-Judge)"
+        P3 -->|Step 1| QGen[Question Generation]
+        P3 -->|Step 2| GGen[Ground Truth SQL]
+        P3 -->|Step 3| Exec[SQL Execution]
+        P3 -->|Step 4| Eval[AI Evaluation]
     end
 ```
 
----
-
-## 🚀 Activity-Based Workflow
-
-The project is organized into three primary execution logic scripts, all optimized with standard `logging`, `argparse`, and type hints:
-
-1.  **[01] Data Preparation**
-    - Script: `scripts/01_prepare_data.py`
-    - Purpose: Fetch and sample distinct values from Fabric SQL Endpoints to `data/sample/`.
-
-2.  **[02] Agent Publishing**
-    - Script: `scripts/02_deploy_agent.py`
-    - Purpose: Compile agent instructions and upload the configuration payload directly to Fabric OneLake.
-
-3.  **[03] QA Execution**
-    - Script: `scripts/03_run_qa.py`
-    - Purpose: Execute the end-to-end QA pipeline (Generate -> GT -> Run -> Evaluate).
-
----
+## 🚀 Technical Highlights
+- **SOTA Data Instructions**: Implements a "Triple-Net Entity Resolution" protocol and "Quad-Net Product Search" to eliminate LLM hallucinations.
+- **Automated QA Pipeline**: A 4-step pipeline that generates adversarial questions, matches them with ground-truth SQL, compares execution results, and uses an AI Evaluator to score accuracy.
+- **Professional Tooling**:
+    - **CLI Ready**: All scripts use `argparse` for modular execution.
+    - **Quality Code**: Type hints, standard `logging`, and `ruff` linting/formatting.
+    - **Zero-Trust Auth**: Integrated with Azure Identity & Service Principals.
 
 ## 🛠️ Getting Started
 
