@@ -1,74 +1,51 @@
-# Sales Data Agent: Data Instructions (SOTA)
+# Sales Data Agent: Data Instructions (Generic Portfolio Version)
 
 This document provides the foundational data architecture, column definitions, and business logic mapping for the Sales Data Agent.
 
 ## 1. Data Source Overview
-The system utilizes two primary fact tables with **monthly aggregated data**. All monetary values are in **USD**. All queries should default to the most intuitive JOIN or FILTER structure without unnecessary complexity.
+The system utilizes two primary fact tables with **monthly aggregated data**. All monetary values are in **USD**.
 
 | Table Name | Schema | Semantic Purpose |
 | :--- | :--- | :--- |
-| `fact_monthly_sales_poa_billing` | `ods.` | **Billing (Actuals)**: Revenue, shipments, billed sales, and costs. **(NO BUDGET COLUMNS)** |
-| `fact_monthly_sales_poa_billing` | `ods.` | **Backlog**: DEFINED AS this table with `order_type <> 'SHIPMENT'`. **NEVER** use Booking table for Backlog. |
-| `fact_monthly_sales_poa_booking` | `ods.` | **Booking (Pipeline)**: Sales orders received, forward-looking demand. |
-| `fact_monthly_sales_poa_budget` | `ods.` | **Budget (Target)**: Financial targets. |
+| `fact_monthly_sales_billing` | `ods.` | **Billing (Actuals)**: Revenue, shipments, billed sales, and costs. |
+| `fact_monthly_sales_booking` | `ods.` | **Booking (Pipeline)**: Sales orders received, forward-looking demand. |
+| `fact_monthly_sales_budget` | `ods.` | **Budget (Target)**: Financial targets. |
 
 ---
 
 ## 2. Table Selection & Logic Protocols
 ### 2.1 The "Billing-First" Rule
-- **DEFAULT**: Always use `ods.fact_monthly_sales_poa_billing` for all general "POA", "Sales", or "Growth" queries.
-- **EXCEPTION**: Use `ods.fact_monthly_sales_poa_booking` **ONLY** if the word "Booking" or "BOOK" is explicitly mentioned in the question.
+- **DEFAULT**: Always use `ods.fact_monthly_sales_billing` for all general "Sales" or "Growth" queries.
+- **EXCEPTION**: Use `ods.fact_monthly_sales_booking` **ONLY** if the word "Booking" or "BOOK" is explicitly mentioned.
 
 ### 2.2 Order Type Filtering
-- **Standard Billing**: For any billing query not involving OTR or Backlog, use `WHERE order_type = 'SHIPMENT'`.
-- **OTR (Order-to-Revenue)**: **CRITICAL**: "OTR" means **ALL** `order_type` values. Do NOT filter by `order_type`. Include EVERYTHING (Shipment, Backlog, etc.).
-- **Backlog Definition**: Defined as `order_type <> 'SHIPMENT'` within the **Billing** table. **Never use the Booking table for Backlog.**
-- **Budget Join Rule**: NEVER join on `order_type` when querying `ods.fact_monthly_sales_poa_budget`. The budget table does not contain valid `order_type` mapping for Billing types. Join only on `year_month`, `ru`, `customer_parent`, etc.
+- **Standard Billing**: Use `WHERE order_type = 'SHIPMENT'`.
+- **OTR (Order-to-Revenue)**: Includes everything (Shipment, Backlog, etc.).
+- **Backlog Definition**: Defined as `order_type <> 'SHIPMENT'` within the **Billing** table.
 
-### 2.3 Budget Alignment Protocol (CRITICAL)
--   **Mapping**: Budget uses `sub_unit_cbr` instead of `sub_unit`. Join on `budget.sub_unit_cbr = billing.sub_unit`.
--   **Aggregate-First**: For queries at Region/PBG level, aggregate Billing first. For Customer level, direct join is allowed.
--   **Symmetric Customer Filter**: When filtering by "Customer" for Hit Rate, you **MUST** check `customer_parent`, `local_assembler`, AND `final_customer` in **BOTH** the Billing CTE and the Budget CTE.
--   **Symmetric Product Filter**: When filtering by "Product" (e.g. "Capacitor"), you **MUST** check `pbg`, `pbu`, `pbu_1`, AND `pbu_2` in **BOTH** the Billing CTE and the Budget CTE.
--   **Data Constraint**: Budget data is only available from **2025 onwards**. Queries for 2024 budget or earlier will return 0 or NULL for budget metrics. Inform the user if they ask for pre-2025 budget.
+### 2.3 Budget Alignment Protocol
+- **Mapping**: Budget uses `sub_unit_key` instead of `sub_unit`. Join on `budget.sub_unit_key = billing.sub_unit`.
+- **Data Constraint**: Budget data is available from **2025 onwards**.
 
 ### 2.4 Anti-Hallucination Protocol (STRICT)
-- **Billing Table Limitations**: The table `ods.fact_monthly_sales_poa_billing` **DOES NOT CONTAIN** `total_budget`.
-- **Budget Rule**: You **MUST** join `ods.fact_monthly_sales_poa_budget` to get any budget data.
-- **FAILURE CONDITION**: Any query that attempts to select `total_budget` from `ods.fact_monthly_sales_poa_billing` is a **CRITICAL HALLUCINATION** and will fail.
-- **NO RECORD COUNTING**: Do **NOT** use `COUNT(*)` or `COUNT(1)` to report "Number of Orders" or "Transaction Volume". The data is aggregated; row count is meaningless business noise.
-
-
-
+- **Billing Table Limitations**: The table `ods.fact_monthly_sales_billing` **DOES NOT** contain `total_budget`.
+- **NO RECORD COUNTING**: Do **NOT** use `COUNT(*)` to report "Number of Orders". The data is aggregated.
 
 ---
 
 ## 3. Data Dictionary (Schema & Values)
 
 ### 3.1 Dimensions
-| Column Name | Category | Description / Constraints | Sample Values (Non-Exhaustive) |
+| Column Name | Category | Description | Sample Values |
 | :--- | :--- | :--- | :--- |
-| `year_month` | Time | Primary temporal filter (Format: `YYYY-MM`). | `2024-12`, `2025-01` |
-| `order_type` | Business | Filter Billing/Booking status. | `SHIPMENT`, `PAST DUE`, `BACKLOG`, `BOOKING` |
-
-| `ru` | Region | Reporting Unit (Main region). | `AMERICAS`, `EMEA`, `GREAT CHINA`, `SOUTHEAST ASIA` |
-| `pbg` | Product | Product Business Group (Top level). | `Capacitor`, `Resistors`, `Magnetics`, `SENSOR` |
-| `pbu` | Product | Product Business Unit (Sub-type). | `MLCC`, `TANTALUM`, `R-Chip`, `Wireless` |
-| `pbu_1` | Product | Product hierarchy level 1. | `COMMODITY`, `HIGH CAP` |
-| `pbu_2` | Product | Product hierarchy level 2. | `Ceramic`, `METAL` |
-| `local_assembler` | Customer | Secondary customer view (Assembler). | `FLEX`, `HON HAI` |
-| `final_customer` | Customer | End-user customer view. | `APPLE`, `TESLA` |
-| `g7` | Channel | Channel / Distributor details. | `AVNET`, `Non-G7` |
-| `focus_flag`| Tracking | Indicator for focus products. | `Yes`, `No`, `Adjustment` |
-| `fu_global_ems_flag` | Tracking | Global EMS account indicator. | `Yes`, `No` |
-| `fu_us_oem_flag` | Tracking | US OEM account indicator. | `Yes`, `No` |
-| `fu_emea_oem_flag` | Tracking | EMEA OEM account indicator. | `Yes`, `No` |
-| `customer_parent`| Customer | Primary customer (Invoiced). | `HON HAI`, `VALEO`, `GOOGLE`, `INFINEON` |
-| `g7_flag` | Tracking | G7 Country indicator (Renamed from fu_g7_flag). | `Yes`, `No` |
+| `year_month` | Time | Format: `YYYY-MM`. | `2025-01` |
+| `ru` | Region | Reporting Unit. | `REGION_A`, `REGION_B`, `REGION_C` |
+| `pbg` | Product | Product Group (Top level). | `GROUP_1`, `GROUP_2`, `GROUP_3` |
+| `pbu` | Product | Product Unit (Sub-type). | `UNIT_1.1`, `UNIT_2.1` |
+| `customer_parent`| Customer | Primary customer name. | `CUSTOMER_X`, `CUSTOMER_Y`, `CUSTOMER_Z` |
 | `total_sales` | Metric | Financial value (USD). | `12345.67` |
 | `total_qty` | Metric | Product volume (Units). | `5000` |
-| `total_cost` | Metric | Cost of goods (Only for `SHIPMENT`).| `8000` |
-| `total_budget` | Metric | Budget Target (USD). Available in Budget Table ONLY. | `50000.00` |
+| `total_budget` | Metric | Budget Target (USD). | `50000.00` |
 
 > [!NOTE]
 > **Generalization Rule**: The sample values above are representative but not exhaustive. If a user asks for a value NOT in this list (e.g., a specific customer name or a different brand), the Agent **MUST** still attempt to query it using the correct column. Do NOT assume a value is "invalid" just because it's missing from the sample list.

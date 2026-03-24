@@ -1,5 +1,6 @@
 """Step 2: Ground Truth Generation logic."""
 
+
 def generate_ground_truth(client_openai, model, question, context):
     system_prompt = (
         "You are a Sales Data Agent Simulator. Your role is to generate the PERFECT 'Golden' response "
@@ -51,8 +52,8 @@ def generate_ground_truth(client_openai, model, question, context):
             model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"User Question: {question}"}
-            ]
+                {"role": "user", "content": f"User Question: {question}"},
+            ],
         )
         return resp.choices[0].message.content or ""
     except Exception as e:

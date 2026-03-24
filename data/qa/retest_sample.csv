@@ -1,6 +1,0 @@
-"difficulty","question","metric","dimension","expected_answer","agent_answer","generated_sql","similarity_score","evaluation_grade","evaluation_reason"
-"L1","What is the POA BILLED for 2024-06?","POA BILLED","N/A","USD 9,452,310.75","","","","",""
-"L1","What is the Total Sales for 2025-04?","Total Sales","N/A","USD 3,587,420.75","","","","",""
-"L1","What is the POA backlog for 2025-01?","poa_backlog","N/A","USD 1,234,567.89","","","","",""
-"L1","What is the BB Qty Ratio for POA BACKLOG in 2025-01?","BB Qty Ratio","POA BACKLOG","0.80","","","","",""
-"L2","What is the MoM % change for YAGEO shipments in 2025-02?","mom_percent_change","brand, year_month","13.64% MoM growth","","","","",""

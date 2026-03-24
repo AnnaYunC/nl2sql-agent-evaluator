@@ -1,7 +1,0 @@
-Total FAIL count: 1
-
-ID: L5_252
-Question: What was the YoY backlog growth for POA in 2025-08, and how did that growth compare to the YoY backlog growth in 2024-08?
-Reason: The agent attempted a YoY comparison between 2025-08 and 2024-08, but the reported results are incorrect and do not match the ground truth. The answer states overly large, nonsensical growth (30.86x, +2,917,048.95%) and incorrectly claims missing data for 2023-08 prevents calculation, whereas the required metric is a single YoY comparison between 2025-08 and 2024-08 yielding a backlog of 1,250,000.00 USD and a 25% growth (delta 250,000). The SQL snippets mix 2025-08/2024-08 with 2023-08 in the second part, which does not align with the specified scope (POA backlog, order_type <> 'SHIPMENT') and the requested time-series comparison. Overall, the business intent (YoY growth 2025-08 vs 2024-08) is not correctly implemented or reported.
-SQL Snippet: ["SELECT SUM(total_sales) AS backlog FROM ods.fact_monthly_sales_poa_billing WHERE order_type <> 'SHIPMENT' AND year_month = '2025-08'\n    ), backlog_2024_08 AS (\n      SELECT SUM(total_sales) AS ba...
-

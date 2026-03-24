@@ -22,6 +22,8 @@ docs/process/log_*.txt
 docs/test_results/test_results_*.csv
 tests/test_results_*.csv
 agent_responses.log
+data/qa/
+data/sample/
 
 # Mac
 .DS_Store
